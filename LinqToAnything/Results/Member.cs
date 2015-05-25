@@ -19,6 +19,8 @@ namespace LinqToAnything.Results
         {
             return new Member
             {
+
+                Expression = Expression,
                 Name = Name
             };
         }

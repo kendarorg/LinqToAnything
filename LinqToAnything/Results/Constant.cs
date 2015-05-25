@@ -17,7 +17,11 @@ namespace LinqToAnything.Results
 
         public override Clause Clone()
         {
-            return new Constant { Value = Value };
+            return new Constant
+            {
+                Expression = Expression,
+                Value = Value
+            };
         }
     }
 }

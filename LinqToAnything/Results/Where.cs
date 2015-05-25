@@ -13,6 +13,7 @@ namespace LinqToAnything.Results
             return new Where()
             {
                 Operator = this.Operator,
+                Expression = Expression,
                 Parameters = Parameters.Select(p => p.Clone()).ToList()
             };
         }

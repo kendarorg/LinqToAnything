@@ -65,7 +65,6 @@
     <Compile Include="Visitors\SwitchoutArgumentVisitor.cs" />
     <Compile Include="Visitors\SwitchoutVisitor.cs" />
     <Compile Include="Visitors\WhereClauseVisitor.cs" />
-    <None Include="Visitors\XXXWhereClauseVisitor.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 namespace LinqToAnything.Test
 {
     [TestClass]
-    public class OrderTakeSkip
+    public class Tests
     {
         private static int Skipped;
         private static int? Taken;
@@ -331,27 +331,36 @@ namespace LinqToAnything.Test
             {
                 var where = clause as Where;
                 var binary = clause as BinaryOperator;
+                var andOr = clause as AndOr;
                 if (where != null)
                 {
                     var par = where.Parameters.First() as Member;
                     var value = where.Parameters.Last() as Constant;
-                    if (where != null && where.Operator == "Contains" || where.Operator == "EndsWith")
+                    if (where.Operator == "Contains" || where.Operator == "EndsWith")
                     {
                         query = query.Where(par.Name + "." + where.Operator + "(@0)", value.Value);
                     }
-                    else if (binary != null && binary.Operator == "Equal")
+                }
+
+                if (binary != null)
+                {
+                    var par = binary.Parameters.First() as Member;
+                    var value = binary.Parameters.Last() as Constant;
+                    if (binary.Operator == "Equal")
                     {
                         query = query.Where(par.Name + " == @0", value.Value);
                     }
-                    else if (binary != null && binary.Operator == "NotEqual")
+                    else if (binary.Operator == "NotEqual")
                     {
                         query = query.Where(par.Name + " != @0", value.Value);
                     }
                 }
 
-                if (binary != null && binary.Operator == "OrElse")
+                if (andOr != null)
                 {
-                    query = query.Where((Expression<Func<SomeEntity, bool>>)((AndOr)clause).Expression);
+                    query = query.Where((Expression<Func<SomeEntity, bool>>)(andOr.Expression));
+                    var xx = Expression.Lambda(andOr.Expression).Compile();
+                    //query = query.Where((Expression<Func<SomeEntity, bool>>)());
                 }
 
             }

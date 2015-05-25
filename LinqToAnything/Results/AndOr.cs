@@ -12,6 +12,7 @@ namespace LinqToAnything.Results
             return new AndOr()
             {
                 Operator = Operator,
+                Expression = Expression,
                 Parameters = this.Parameters.Select(c => c.Clone()).ToList()
             };
         }
@@ -31,6 +32,7 @@ namespace LinqToAnything.Results
             return new BinaryOperator()
             {
                 Operator = Operator,
+                Expression = Expression,
                 Parameters = this.Parameters.Select(c => c.Clone()).ToList()
             };
         }

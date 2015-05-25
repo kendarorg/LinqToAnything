@@ -23,6 +23,7 @@ namespace LinqToAnything.Results
             return new Call
             {
                 Method = Method,
+                Expression = Expression,
                 Parameters = Parameters.Select(p => p.Clone()).ToList()
             };
         }

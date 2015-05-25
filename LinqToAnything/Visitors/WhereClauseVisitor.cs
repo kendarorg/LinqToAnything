@@ -19,7 +19,7 @@ namespace LinqToAnything.Visitors
         private Expression lambdaExpression;
         private dynamic parameter;
 
-        
+
 
         public override Expression Visit(Expression node)
         {
@@ -35,7 +35,9 @@ namespace LinqToAnything.Visitors
         {
             return new List<string>
             {
-                "Contains"
+                "Contains",
+                "EndsWith",
+                "StartsWith"
 
             }.Any(f => f == mi.Name) && mi.ReturnType == typeof(bool);
         }
@@ -46,7 +48,7 @@ namespace LinqToAnything.Visitors
         {
             return base.VisitUnary(node);
         }
-        
+
 
         protected override Expression VisitParameter(ParameterExpression node)
         {
@@ -60,6 +62,8 @@ namespace LinqToAnything.Visitors
             throw new NotImplementedException();
             return result;
         }
+
+
         protected override Expression VisitConstant(ConstantExpression node)
         {
             var result = base.VisitConstant(node);
@@ -73,12 +77,39 @@ namespace LinqToAnything.Visitors
 
         protected override Expression VisitMember(MemberExpression node)
         {
-            
-            var result = base.VisitMember(node);
-            _stack.Last().Parameters.Add(new Member
+            Expression result;
+            if (node.Expression.NodeType == ExpressionType.Parameter)
             {
-                Name = node.Member.Name
-            });
+                result = base.VisitMember(node);
+                _stack.Last().Parameters.Add(new Member
+                {
+                    Name = node.Member.Name
+                });
+            }
+            else
+            {
+                result = null;
+                var container = node.Expression as ConstantExpression;
+                var member = node.Member;
+                object value = null;
+                if (member is FieldInfo)
+                {
+                    value = ((FieldInfo)member).GetValue(container.Value);
+                    result = Expression.Constant(value);
+                }
+                if (member is PropertyInfo)
+                {
+                    value = ((PropertyInfo)member).GetValue(container.Value, null);
+                    result = Expression.Constant(value);
+                }
+
+                //result = base.VisitMember(node);
+                //var cnst = node.Expression as ConstantExpression;
+                _stack.Last().Parameters.Add(new Constant
+                {
+                    Value = value
+                });
+            }
             return result;
         }
 
@@ -89,7 +120,7 @@ namespace LinqToAnything.Visitors
                 var filter = new Where
                 {
                     Operator = node.Method.Name
-                    
+
                 };
                 _stack.Add(filter);
             }
@@ -101,6 +132,7 @@ namespace LinqToAnything.Visitors
                 };
                 _stack.Add(mc);
             }
+            var realExp = Expression.Lambda(node, parameter);
 
             var result = base.VisitMethodCall(node);
 
@@ -109,7 +141,7 @@ namespace LinqToAnything.Visitors
 
             if (_stack.Count == 0)
             {
-                lastInserted.Expression = node;
+                lastInserted.Expression = realExp;
                 _filters.Add(lastInserted);
             }
             else
@@ -124,6 +156,7 @@ namespace LinqToAnything.Visitors
 
         protected override Expression VisitBinary(BinaryExpression node)
         {
+            var realExp = Expression.Lambda(node, parameter);
             //return base.VisitBinary(node);
             if (node.NodeType == ExpressionType.AndAlso)
             {
@@ -161,7 +194,7 @@ namespace LinqToAnything.Visitors
             _stack.RemoveAt(_stack.Count - 1);
             if (_stack.Count == 0)
             {
-                lastInserted.Expression = node;
+                lastInserted.Expression = realExp; //node;
                 _filters.Add(lastInserted);
             }
             else
