@@ -1,49 +1,27 @@
 using System.Collections.Generic;
 using System.Linq.Expressions;
+using System.Linq;
 
 namespace LinqToAnything.Results
 {
     public class Where : Clause
     {
-        public string PropertyName { get; set; }
-
-        public MethodCall Method { get; set; }
-
-        public object UsableValue
-        {
-            get
-            {
-                var ce = Value as ConstantExpression;
-                if (ce == null) return Value;
-                return ce.Value;
-            }
-        }
-
-        /// <summary>
-        /// either a method name (e.g. Contains, StartsWith) or an operator name (op_Inequality,op_GreaterThan,op_GreaterThanOrEqual,op_LessThan,op_LessThanOrEqual,op_Multiply,op_Subtraction,op_Addition,op_Division,op_Modulus,op_BitwiseAnd,op_BitwiseOr,op_ExclusiveOr)
-        /// </summary>
-        public object Value{get;set;}
-
+        public string Operator { get; set; }
 
         public override Clause Clone()
         {
             return new Where()
             {
                 Operator = this.Operator,
-                PropertyName = this.PropertyName,
-                Expression = Expression,
-                Value = this.Value
+                Parameters = Parameters.Select(p => p.Clone()).ToList()
             };
         }
 
-        public override IEnumerable<string> PropertyNames
-        {
-            get { return new[] {PropertyName}; }
-        }
 
         public override string ToString()
         {
-            return " " + PropertyName + " " + Operator + " " + Value.ToString()+" ";
+            var pars = Parameters.Select(a => a.ToString()).ToArray();
+            return string.Format("{0}.{1}({2})",pars.First(), Operator, string.Join(",", pars.Skip(1)));
         }
     }
 }

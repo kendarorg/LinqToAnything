@@ -45,13 +45,22 @@ namespace LinqToAnything.Results
 
         public override string ToString()
         {
-            var res = "SELECT * WHERE ";
-            foreach (var clause in Clauses)
+            var res = "SELECT * ";
+            if (Clauses.Count() > 0)
             {
-                res += " " + clause.ToString() + " ";
+                res += "WHERE ";
+                
+                foreach (var clause in Clauses)
+                {
+                    res += " " + clause.ToString() + " ";
+                }
             }
 
-            res += string.Join(" AND ", OrderBys.Select(o => o.ToString()));
+            if (OrderBys.Count() > 0)
+            {
+                res += "ORDER BY ";
+                res += string.Join(", ", OrderBys.Select(o => o.ToString()));
+            }
 
             if (Skip > 0)
             {
@@ -61,7 +70,7 @@ namespace LinqToAnything.Results
             {
                 res += " TAKE " + Take + " ";
             }
-            return res;
+            return res.Trim();
         }
 
         public IQueryable<T> ApplyTo<T>(IQueryable<T> q)
@@ -85,8 +94,6 @@ namespace LinqToAnything.Results
 
             if (qi.Take != null) q = q.Take(qi.Take.Value);
 
-
-
             return q;
         }
     }
@@ -95,11 +102,12 @@ namespace LinqToAnything.Results
     {
         public static T GetWhereClauseValue<T>(this QueryInfo qi, string propertyName, string @operator)
         {
-            return qi.Clauses.OfType<Where>()
+            /*return qi.Clauses.OfType<Where>()
                 .Where(c => c.PropertyName == propertyName && c.Operator == @operator)
                 .Select(c => c.Value)
                 .OfType<T>()
-                .SingleOrDefault();
+                .SingleOrDefault();*/
+            throw new NotImplementedException();
         }
     }
 }

@@ -36,9 +36,6 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="QueryInterceptor">
-      <HintPath>..\packages\QueryInterceptor.0.2\lib\net40\QueryInterceptor.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Linq.Dynamic">
@@ -53,8 +50,10 @@
   <ItemGroup>
     <Compile Include="ExpressionUtils.cs" />
     <Compile Include="Results\Clause.cs" />
-    <Compile Include="Results\MethodCall.cs" />
-    <Compile Include="Results\Or.cs" />
+    <Compile Include="Results\Call.cs" />
+    <Compile Include="Results\Constant.cs" />
+    <Compile Include="Results\Member.cs" />
+    <Compile Include="Results\AndOr.cs" />
     <Compile Include="Results\OrderBy.cs" />
     <Compile Include="Results\QueryInfo.cs" />
     <Compile Include="DelegateQueryable.cs" />
@@ -66,6 +65,7 @@
     <Compile Include="Visitors\SwitchoutArgumentVisitor.cs" />
     <Compile Include="Visitors\SwitchoutVisitor.cs" />
     <Compile Include="Visitors\WhereClauseVisitor.cs" />
+    <None Include="Visitors\XXXWhereClauseVisitor.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

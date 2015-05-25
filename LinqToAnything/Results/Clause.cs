@@ -5,10 +5,14 @@ namespace LinqToAnything.Results
 {
     public abstract class Clause
     {
-        public string Operator { get; set; }
+        public Clause()
+        {
+            Parameters = new List<Clause>();
+        }
         public Expression Expression { get; set; }
         public abstract Clause Clone();
-        public abstract IEnumerable<string> PropertyNames { get;}
+        public List<Clause> Parameters { get; set; }
+
     }
 
 }

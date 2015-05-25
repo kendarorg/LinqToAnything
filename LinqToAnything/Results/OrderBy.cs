@@ -24,7 +24,7 @@ namespace LinqToAnything.Results
 
         public override string ToString()
         {
-            return "order by " + Name + " " + this.Direction.ToString().ToUpper();
+            return  Name + " " + this.Direction.ToString().ToUpper();
         }
     }
 }

@@ -1,7 +1,9 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
 using LinqToAnything.Results;
+using System.Reflection;
 
 namespace LinqToAnything.Visitors
 {
@@ -17,7 +19,7 @@ namespace LinqToAnything.Visitors
         private Expression lambdaExpression;
         private dynamic parameter;
 
-        private MethodCall _methodCall;
+        
 
         public override Expression Visit(Expression node)
         {
@@ -29,109 +31,146 @@ namespace LinqToAnything.Visitors
             return base.Visit(node);
         }
 
+        private bool IsFilter(MethodInfo mi)
+        {
+            return new List<string>
+            {
+                "Contains"
+
+            }.Any(f => f == mi.Name) && mi.ReturnType == typeof(bool);
+        }
+
+        public List<Clause> _stack = new List<Clause>();
+
+        protected override Expression VisitUnary(UnaryExpression node)
+        {
+            return base.VisitUnary(node);
+        }
+        
+
+        protected override Expression VisitParameter(ParameterExpression node)
+        {
+            //e
+            return base.VisitParameter(node);
+        }
+
+        protected override Expression VisitInvocation(InvocationExpression node)
+        {
+            var result = base.VisitInvocation(node);
+            throw new NotImplementedException();
+            return result;
+        }
+        protected override Expression VisitConstant(ConstantExpression node)
+        {
+            var result = base.VisitConstant(node);
+            var lastFilter = _stack.Last();
+            lastFilter.Parameters.Add(new Constant
+            {
+                Value = node.Value
+            });
+            return result;
+        }
+
+        protected override Expression VisitMember(MemberExpression node)
+        {
+            
+            var result = base.VisitMember(node);
+            _stack.Last().Parameters.Add(new Member
+            {
+                Name = node.Member.Name
+            });
+            return result;
+        }
+
         protected override Expression VisitMethodCall(MethodCallExpression node)
         {
-            var filter = new Where();
-            var memberExpression = node.Object as MemberExpression;
-
-            if (memberExpression != null)
+            if (IsFilter(node.Method))
             {
-
-                filter.PropertyName = memberExpression.Member.Name;
-                filter.Expression = Expression.Lambda(node, parameter);
-                filter.Operator = node.Method.Name;
-                if (node.Arguments.Count == 1)
+                var filter = new Where
                 {
-                    filter.Value = node.Arguments[0];
-                }
-                else if (node.Arguments.Count == 0 && _methodCall != null)
+                    Operator = node.Method.Name
+                    
+                };
+                _stack.Add(filter);
+            }
+            else
+            {
+                var mc = new Call
                 {
-                    filter.Method = _methodCall;
-                    _methodCall = null;
-
-                }
-                else
-                {
-                    throw new NotImplementedException();
-                }
-                /*else if (_methodCall != null)
-                {
-                    filter.Value = _methodCall;
-                    //_methodCall.Value = filter;
-                    _methodCall = null;
-                }*/
-                _filters.Add(filter);
-
-                return base.VisitMethodCall(node);
+                    Method = node.Method.Name
+                };
+                _stack.Add(mc);
             }
 
-            var methodCallExpression = node.Object as MethodCallExpression;
-            if (methodCallExpression != null)
-            {
-                var mex =(MemberExpression) methodCallExpression.Object;
-                //var prop = (PropertyExpression) methodCallExpression.Object;
-                var methodCall = new MethodCall();
-                methodCall.Expression = Expression.Lambda(node, parameter);
-                methodCall.Operator = node.Method.Name;
-                methodCall.PropertyName = mex.Member.Name;
-                
+            var result = base.VisitMethodCall(node);
 
-                _methodCall = methodCall;
-                /*filter.Expression = Expression.Lambda(node, parameter);
-                filter.Operator = node.Method.Name;*/
-                return base.VisitMethodCall(node);
+            var lastInserted = _stack.Last();
+            _stack.RemoveAt(_stack.Count - 1);
+
+            if (_stack.Count == 0)
+            {
+                lastInserted.Expression = node;
+                _filters.Add(lastInserted);
+            }
+            else
+            {
+
+                var lastFilter = _stack.Last();
+                lastFilter.Parameters.Add(lastInserted);
             }
 
-            throw new Exception();
+            return result;
         }
 
         protected override Expression VisitBinary(BinaryExpression node)
         {
+            //return base.VisitBinary(node);
             if (node.NodeType == ExpressionType.AndAlso)
             {
-                this.Visit((BinaryExpression)node.Left);
-                this.Visit((BinaryExpression)node.Right);
-                return node;
+                var mc = new AndOr
+                {
+                    Operator = "AND"
+                };
+                _stack.Add(mc);
+                this.Visit(node.Left as BinaryExpression);
+                this.Visit(node.Right as BinaryExpression);
             }
             else if (node.NodeType == ExpressionType.OrElse)
             {
 
-                var filter = new Or { Operator = node.NodeType.ToString() };
-
-                var whereVisitor = new WhereClauseVisitor();
-                whereVisitor.lambdaExpression = this.lambdaExpression;
-
-                whereVisitor.Visit(node.Left);
-                whereVisitor.Visit(node.Right);
-                filter.Clauses = whereVisitor.Filters;
-                filter.Expression = Expression.Lambda(node, parameter);
-                _filters.Add(filter);
-                return node;
+                var mc = new AndOr
+                {
+                    Operator = "OR"
+                };
+                _stack.Add(mc);
+                this.Visit(node.Left as BinaryExpression);
+                this.Visit(node.Right as BinaryExpression);
             }
             else
             {
-                var filter = new Where();
-                var member = node.Left as MemberExpression;
-
-                if (member == null)
+                var op = new BinaryOperator
                 {
-                    var unaryMember = node.Left as UnaryExpression;
-                    if (unaryMember != null)
-                    {
-                        member = unaryMember.Operand as MemberExpression;
-                    }
-                }
-
-                if (member != null)
-                {
-                    filter.PropertyName = member.Member.Name;
-                }
-                filter.Expression = Expression.Lambda(node, parameter);
-                filter.Operator = node.NodeType.ToString();
-                filter.Value = GetValueFromExpression(node.Right);
-                _filters.Add(filter);
-                return node;
+                    Operator = node.NodeType.ToString()
+                };
+                _stack.Add(op);
+                this.Visit(node.Left);
+                this.Visit(node.Right);
             }
+
+            var lastInserted = _stack.Last();
+            _stack.RemoveAt(_stack.Count - 1);
+            if (_stack.Count == 0)
+            {
+                lastInserted.Expression = node;
+                _filters.Add(lastInserted);
+            }
+            else
+            {
+                var lastFilter = _stack.Last();
+                lastFilter.Parameters.Add(lastInserted);
+            }
+
+            return node;
         }
         private static object GetValueFromExpression(Expression node)
         {

@@ -1,16 +1,16 @@
-using System.Reflection;
+﻿using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("LinqToAnything.Tests")]
+[assembly: AssemblyTitle("LinqToAnything.Test")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("LinqToAnything.Tests")]
-[assembly: AssemblyCopyright(" Harry McIntyreCopyright ©  2013")]
+[assembly: AssemblyProduct("LinqToAnything.Test")]
+[assembly: AssemblyCopyright("Copyright ©  2015")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -20,7 +20,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("4e5f18ad-2b48-4fee-bea1-7b6424302a66")]
+[assembly: Guid("2de53a67-ccee-411e-a939-971041650cf9")]
 
 // Version information for an assembly consists of the following four values:
 //
