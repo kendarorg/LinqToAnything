@@ -4,6 +4,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using LinqToAnything.Results;
 using System.Reflection;
+using System.Collections;
 
 namespace LinqToAnything.Visitors
 {
@@ -81,10 +82,24 @@ namespace LinqToAnything.Visitors
             if (node.Expression.NodeType == ExpressionType.Parameter)
             {
                 result = base.VisitMember(node);
-                _stack.Last().Parameters.Add(new Member
+
+                var lastValue = _stack.Last().Parameters.LastOrDefault() as Constant;
+                //result = base.VisitMember(node);
+                //var cnst = node.Expression as ConstantExpression;
+                if (lastValue != null && lastValue.Value != null && lastValue.Value.GetType() != typeof(string) && typeof(IEnumerable).IsAssignableFrom(lastValue.Value.GetType()))
                 {
-                    Name = node.Member.Name
-                });
+                    _stack.Last().Parameters.Insert(0,new Member
+                    {
+                        Name = node.Member.Name
+                    });
+                }
+                else
+                {
+                    _stack.Last().Parameters.Add(new Member
+                    {
+                        Name = node.Member.Name
+                    });
+                }
             }
             else
             {
@@ -103,12 +118,11 @@ namespace LinqToAnything.Visitors
                     result = Expression.Constant(value);
                 }
 
-                //result = base.VisitMember(node);
-                //var cnst = node.Expression as ConstantExpression;
                 _stack.Last().Parameters.Add(new Constant
-                {
-                    Value = value
-                });
+                   {
+                       Value = value
+                   });
+
             }
             return result;
         }
