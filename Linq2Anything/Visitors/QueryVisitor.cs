@@ -1,11 +1,9 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Runtime.InteropServices.ComTypes;
+using Linq2Anything.Results;
 
-namespace LinqToAnything
+namespace Linq2Anything.Visitors
 {
 
     public class QueryVisitor : System.Linq.Expressions.ExpressionVisitor
@@ -37,7 +35,7 @@ namespace LinqToAnything
                     QueryInfo.Skip = ((int) countExpression.Value);
                     return m;
                 }
-                else if (m.Method.Name.Equals("Take"))
+                if (m.Method.Name.Equals("Take"))
                 {
                     Visit(m.Arguments[0]);
 
@@ -46,7 +44,7 @@ namespace LinqToAnything
                     QueryInfo.Take = ((int) countExpression.Value);
                     return m;
                 }
-                else if (m.Method.Name.Equals("Select"))
+                if (m.Method.Name.Equals("Select"))
                 {
                     MethodCallExpression call = m;
                     LambdaExpression lambda = (LambdaExpression) ExpressionUtils.RemoveQuotes(call.Arguments[1]);
@@ -64,14 +62,14 @@ namespace LinqToAnything
                     MethodCallExpression call = m;
                     var lambda = (LambdaExpression) ExpressionUtils.RemoveQuotes(call.Arguments[1]);
                     var lambdaBody = (MemberExpression) ExpressionUtils.RemoveQuotes(lambda.Body);
-                    QueryInfo.OrderBy = new OrderBy(lambdaBody.Member.Name, OrderBy.OrderByDirection.Desc);
+                    QueryInfo.AddOrderBy(new OrderBy(lambdaBody.Member.Name, OrderBy.OrderByDirection.Desc));
                 }
                 else if (m.Method.Name.Equals("OrderBy"))
                 {
                     MethodCallExpression call = m;
                     var lambda = (LambdaExpression) ExpressionUtils.RemoveQuotes(call.Arguments[1]);
                     var lambdaBody = (MemberExpression) ExpressionUtils.RemoveQuotes(lambda.Body);
-                    QueryInfo.OrderBy = new OrderBy(lambdaBody.Member.Name, OrderBy.OrderByDirection.Asc);
+                    QueryInfo.AddOrderBy(new OrderBy(lambdaBody.Member.Name, OrderBy.OrderByDirection.Asc));
                 }
                 else if (m.Method.Name.Equals("Where"))
                 {
@@ -79,7 +77,8 @@ namespace LinqToAnything
                     var whereClause = call.Arguments[1];
                     var whereClauseVisitor = new WhereClauseVisitor();
                     whereClauseVisitor.Visit(whereClause);
-                    QueryInfo.Clauses = QueryInfo.Clauses.Concat((whereClauseVisitor.Filters)).ToArray();
+                    //QueryInfo.Clauses = QueryInfo.Clauses.Concat((whereClauseVisitor.Filters)).ToArray();
+                   throw new NotImplementedException();
                 }
 
             }

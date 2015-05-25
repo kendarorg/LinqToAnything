@@ -2,34 +2,87 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using LinqToAnything.Results;
 using NUnit.Framework;
 using LinqToAnything;
 using System.Linq.Dynamic;
 namespace LinqToAnything.Tests
 {
     [TestFixture]
-    public class Tests
+    public class OrderTakeSkip
     {
-        private static int Skipped;
+        /*private static int Skipped;
         private static int? Taken;
-        private static IEnumerable<SomeEntity> Data = Enumerable.Range(1, 10).Select(i => new SomeEntity { Index = i, Name = "Item " + i.ToString().PadLeft(2, '0') });
+        private static IEnumerable<SomeEntity> Data = Enumerable.Range(1, 10).Select(i => new SomeEntity { Index = i, Name = "Item " + i.ToString().PadLeft(2, '0') });*/
 
         [Test]
         public void CanSkipAndTake()
         {
-            DataQuery<SomeEntity> getPageFromDataSource = (info) => SomeDataSource(info);
+            var ds = new DataSource<SomeEntity>();
 
-            IQueryable<SomeEntity> pq = new DelegateQueryable<SomeEntity>(getPageFromDataSource);
+            IQueryable<SomeEntity> pq = new DelegateQueryable<SomeEntity>(ds.Select,ds.Count);
             
             var items = pq.Skip(3).Take(2).ToArray();
+            var query = ds.Query;
 
-            Assert.AreEqual(3, Skipped);
-            Assert.AreEqual(2, Taken);
-
-            Assert.AreEqual("Item 04,Item 05", string.Join(",", items.Select(i => i.Name)));
+            Assert.AreEqual(3, query.Skip);
+            Assert.AreEqual(2, query.Take);
 
         }
 
+        [Test]
+        public void CanDoOrderBy()
+        {
+            var ds = new DataSource<SomeEntity>();
+
+            IQueryable<SomeEntity> pq = new DelegateQueryable<SomeEntity>(ds.Select, ds.Count);
+
+            var items = pq.OrderBy(p=>p.Index).ToArray();
+            var query = ds.Query;
+
+            Assert.AreEqual(1, query.OrderBys.Count());
+            var ob = query.OrderBys.First();
+            Assert.AreEqual("Index", ob.Name);
+            Assert.AreEqual(OrderBy.OrderByDirection.Asc, ob.Direction);
+
+        }
+
+        [Test]
+        public void CanDoOrderByDesc()
+        {
+            var ds = new DataSource<SomeEntity>();
+
+            IQueryable<SomeEntity> pq = new DelegateQueryable<SomeEntity>(ds.Select, ds.Count);
+
+            var items = pq.OrderByDescending(p => p.Index).ToArray();
+            var query = ds.Query;
+
+            Assert.AreEqual(1, query.OrderBys.Count());
+            var ob = query.OrderBys.First();
+            Assert.AreEqual("Index", ob.Name);
+            Assert.AreEqual(OrderBy.OrderByDirection.Desc, ob.Direction);
+
+        }
+
+        [Test]
+        public void CanDoOrderByMulti()
+        {
+            var ds = new DataSource<SomeEntity>();
+
+            IQueryable<SomeEntity> pq = new DelegateQueryable<SomeEntity>(ds.Select, ds.Count);
+
+            var items = pq.OrderByDescending(p => p.Index).ThenBy(p=>p.Name).ToArray();
+            var query = ds.Query;
+
+            Assert.AreEqual(2, query.OrderBys.Count());
+            var ob = query.OrderBys.First();
+            Assert.AreEqual("Index", ob.Name);
+            Assert.AreEqual(OrderBy.OrderByDirection.Desc, ob.Direction);
+
+        }
+
+        
+        #if IGNORE
         [Test]
         public void CanDoACountWithAFilter()
         {
@@ -396,22 +449,7 @@ namespace LinqToAnything.Tests
             var query = Data.AsQueryable();
             return query.ToArray();
         }
+        #endif
 
-    }
-
-    public class SomeEntityVm
-    {
-        public string Name { get; set; }
-    }
-
-    public   class SomeEntity
-    {
-        public string Name { get; set; }
-        public int Index { get; set; }
-    }
-
-    public class Projection
-    {
-        public string Item { get; set; }
     }
 }

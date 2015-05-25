@@ -1,23 +1,21 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-using LinqToAnything.Visitors;
-using QueryInterceptor;
+using Linq2Anything.Visitors;
 
-namespace LinqToAnything
+namespace Linq2Anything
 {
     public class QueryProvider<T> : IQueryProvider
     {
         private readonly DataQuery<T> _dataQuery;
-        private readonly CountQuery _countQuery;
-        private readonly QueryVisitor _queryVisitor;
+        private readonly CountQuery countQuery;
+        private QueryVisitor _queryVisitor;
 
 
         public QueryProvider(DataQuery<T> dataQuery, CountQuery countQuery, QueryVisitor queryVisitor = null)
         {
             _dataQuery = dataQuery;
-            this._countQuery = countQuery;
+            this.countQuery = countQuery;
             this._queryVisitor = queryVisitor ?? new QueryVisitor();
         }
 
@@ -33,9 +31,9 @@ namespace LinqToAnything
             if (typeof(TElement) != typeof(T))
             {
                 DataQuery<TElement> q = info => _dataQuery(info).Select(queryVisitor.Transform<T, TElement>());
-                return new DelegateQueryable<TElement>(q, _countQuery, null, queryVisitor);
+                return new DelegateQueryable<TElement>(q, countQuery, null, queryVisitor);
             }
-            return new DelegateQueryable<TElement>((DataQuery<TElement>)((object)_dataQuery), _countQuery, expression, queryVisitor);
+            return new DelegateQueryable<TElement>((DataQuery<TElement>)((object)_dataQuery), countQuery, expression, queryVisitor);
  
         }
 
@@ -65,7 +63,7 @@ namespace LinqToAnything
             queryVisitor.Visit(expression);
             if (methodCallExpression.Method.Name == "Count" && typeof(TResult) == typeof(int))
             {
-                return (TResult) (object) _countQuery(queryVisitor.QueryInfo);
+                return (TResult) (object) countQuery(queryVisitor.QueryInfo);
             }
 
             var array = _dataQuery(queryVisitor.QueryInfo).ToList();
@@ -75,6 +73,4 @@ namespace LinqToAnything
             return data.Provider.Execute<TResult>(newExp);
         }
     }
-
-    
 }

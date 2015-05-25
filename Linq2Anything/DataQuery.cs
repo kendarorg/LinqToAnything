@@ -1,7 +1,7 @@
 using System.Collections.Generic;
-using LinqToAnything.Results;
+using Linq2Anything.Results;
 
-namespace LinqToAnything
+namespace Linq2Anything
 {
     public delegate IEnumerable<T> DataQuery<out T>(QueryInfo info);
     public delegate int CountQuery(QueryInfo info);

@@ -54,8 +54,11 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Tests.cs" />
+    <Compile Include="DataSource.cs" />
+    <Compile Include="Entities.cs" />
+    <Compile Include="OrderTakeSkip.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="WhereTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
