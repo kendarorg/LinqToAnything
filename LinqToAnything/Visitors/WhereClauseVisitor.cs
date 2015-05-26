@@ -76,6 +76,27 @@ namespace LinqToAnything.Visitors
             return result;
         }
 
+        private static MemberExpression GetMemberExpression(Expression expression)
+        {
+            if (expression is MemberExpression)
+            {
+                return (MemberExpression)expression;
+            }
+            else if (expression is LambdaExpression)
+            {
+                var lambdaExpression = expression as LambdaExpression;
+                if (lambdaExpression.Body is MemberExpression)
+                {
+                    return (MemberExpression)lambdaExpression.Body;
+                }
+                else if (lambdaExpression.Body is UnaryExpression)
+                {
+                    return ((MemberExpression)((UnaryExpression)lambdaExpression.Body).Operand);
+                }
+            }
+            return null;
+        }
+
         protected override Expression VisitMember(MemberExpression node)
         {
             Expression result;
@@ -103,25 +124,50 @@ namespace LinqToAnything.Visitors
             }
             else
             {
-                result = null;
-                var container = node.Expression as ConstantExpression;
-                var member = node.Member;
-                object value = null;
-                if (member is FieldInfo)
-                {
-                    value = ((FieldInfo)member).GetValue(container.Value);
-                    result = Expression.Constant(value);
-                }
-                if (member is PropertyInfo)
-                {
-                    value = ((PropertyInfo)member).GetValue(container.Value, null);
-                    result = Expression.Constant(value);
-                }
-
+                var lambda = Expression.Lambda(node);
+                var lc = lambda.Compile();
+                var value = lc.DynamicInvoke();
+                //result =  this.Visit(node.Expression);
                 _stack.Last().Parameters.Add(new Constant
-                   {
-                       Value = value
-                   });
+                {
+                    Value = value
+                });
+                result = Expression.Constant(value);
+                /*result = null;
+                object value = null;
+                var container = node.Expression as ConstantExpression;
+                var subm = node.Expression as MemberExpression;
+
+
+                if (container != null)
+                {
+                    //Direct access
+                    var member = node.Member;
+
+                    if (member is FieldInfo)
+                    {
+                        value = ((FieldInfo) member).GetValue(container.Value);
+                        result = Expression.Constant(value);
+                    }
+                    if (member is PropertyInfo)
+                    {
+                        value = ((PropertyInfo) member).GetValue(container.Value, null);
+                        result = Expression.Constant(value);
+                    }
+
+
+
+                    _stack.Last().Parameters.Add(new Constant
+                    {
+                        Value = value
+                    });
+                }
+                else
+                {
+                    result = this.Visit(subm);
+                }
+                */
+                
 
             }
             return result;

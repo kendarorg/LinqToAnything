@@ -59,6 +59,25 @@ namespace LinqToAnything.Tests
         }
 
         [TestMethod]
+        public void WhereWithObjectParameter()
+        {
+            var ds = new DataSource<SomeEntity>();
+
+            var item = new
+            {
+                Value = new
+                {
+                    SubValue = 12
+                }
+            };
+
+            IQueryable<SomeEntity> pq = new DelegateQueryable<SomeEntity>(ds.Select, ds.Count);
+
+            var items = pq.Where(e => e.Index == item.Value.SubValue).ToArray();
+            Assert.AreEqual("SELECT * WHERE  Index Equal  12", ds.Query.ToString());
+        }
+
+        [TestMethod]
         public void AndCondition()
         {
             var ds = new DataSource<SomeEntity>();
