@@ -7,16 +7,19 @@ using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 using LinqToAnything;
+using LinqToAnything.Visitors;
 
 namespace LinqToSqlServer
 {
     public class SqlServerQueryable<T> : IOrderedQueryable<T>
     {
+        private readonly QueryVisitor _queryVisitor;
         private readonly SqlServerQueryProvider<T> _provider;
         private readonly Expression _expression;
 
-        public SqlServerQueryable(SqlConnection connection)
+        public SqlServerQueryable(SqlConnection connection, QueryVisitor queryVisitor = null)
         {
+            _queryVisitor = queryVisitor;
 
             _provider = new SqlServerQueryProvider<T>(connection);
             _expression = Expression.Constant(this);

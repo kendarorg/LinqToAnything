@@ -10,15 +10,11 @@ namespace LinqToSqlServer
     public class SqlServerQueryProvider<T> : IQueryProvider
     {
         private readonly SqlConnection _connection;
-        private readonly DataQuery<T> _dataQuery;
-        private readonly CountQuery _countQuery;
         private readonly QueryVisitor _queryVisitor;
 
 
-        public SqlServerQueryProvider(DataQuery<T> dataQuery, CountQuery countQuery, QueryVisitor queryVisitor = null)
+        public SqlServerQueryProvider(SqlConnection connection, QueryVisitor queryVisitor = null)
         {
-            _dataQuery = dataQuery;
-            this._countQuery = countQuery;
             this._queryVisitor = queryVisitor ?? new QueryVisitor();
         }
 
@@ -38,10 +34,9 @@ namespace LinqToSqlServer
             queryVisitor.Visit(expression);
             if (typeof(TElement) != typeof(T))
             {
-                DataQuery<TElement> q = info => _dataQuery(info).Select(queryVisitor.Transform<T, TElement>());
-                return new DelegateQueryable<TElement>(q, _countQuery, null, queryVisitor);
+                return new SqlServerQueryable<TElement>(_connection, queryVisitor);
             }
-            return new DelegateQueryable<TElement>((DataQuery<TElement>)((object)_dataQuery), _countQuery, expression, queryVisitor);
+            return new SqlServerQueryable<TElement>(_connection, queryVisitor);
  
         }
 
