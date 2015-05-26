@@ -1,3 +1,5 @@
+using System.Linq.Expressions;
+
 namespace LinqToAnything.Results
 {
     public class OrderBy
@@ -16,6 +18,7 @@ namespace LinqToAnything.Results
 
         public string Name { get; set; }
         public OrderByDirection Direction { get; set; }
+        public Expression Expression { get; set; }
 
         public OrderBy Clone()
         {

@@ -20,7 +20,6 @@ namespace LinqToAnything.Tests
 
             var items = pq.Where(e => e.Index == 2).ToArray();
             Assert.AreEqual("SELECT * WHERE  Index Equal  2", ds.Query.ToString());
-
         }
 
 

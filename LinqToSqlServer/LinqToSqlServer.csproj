@@ -40,6 +40,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SqlServerQueryProvider.cs" />
+    <Compile Include="SqlServerQueryable.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\LinqToAnything\LinqToAnything.csproj">

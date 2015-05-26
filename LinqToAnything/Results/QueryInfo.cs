@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Linq.Dynamic;
 using System.Linq.Expressions;
 
 namespace LinqToAnything.Results
@@ -80,14 +79,19 @@ namespace LinqToAnything.Results
             {
                 q = q.Where((Expression<Func<T, bool>>)clause.Expression);
             }
-
+            
             for (int index = 0; index < OrderBys.Count; index++)
             {
                 var ob = OrderBys[index];
-                var orderBy = ob.Name;
-                if (ob.Direction == OrderBy.OrderByDirection.Desc)
-                    orderBy += " descending";
-                q = q.OrderBy(orderBy);
+                var method = typeof(T).GetProperty(ob.Name).GetGetMethod();
+                if (ob.Direction == OrderBy.OrderByDirection.Asc)
+                {
+                    q = q.OrderBy(item => method.Invoke(item, new object[] { }));
+                }
+                else
+                {
+                    q = q.OrderByDescending(item => method.Invoke(item, new object[] { }));   
+                }
             }
 
             if (qi.Skip > 0) q = q.Skip(qi.Skip);

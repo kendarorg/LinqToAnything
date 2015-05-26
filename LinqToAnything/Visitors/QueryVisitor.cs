@@ -65,7 +65,9 @@ namespace LinqToAnything.Visitors
                             MethodCallExpression call = m;
                             var lambda = (LambdaExpression)ExpressionUtils.RemoveQuotes(call.Arguments[1]);
                             var lambdaBody = (MemberExpression)ExpressionUtils.RemoveQuotes(lambda.Body);
-                            QueryInfo.OrderBys.Add(new OrderBy(lambdaBody.Member.Name, OrderBy.OrderByDirection.Desc));
+                            var ob = new OrderBy(lambdaBody.Member.Name, OrderBy.OrderByDirection.Desc);
+                            ob.Expression = lambda.Body;
+                            QueryInfo.OrderBys.Add(ob);
                             break;
                         }
                     case ("OrderBy"):
@@ -74,7 +76,9 @@ namespace LinqToAnything.Visitors
                             MethodCallExpression call = m;
                             var lambda = (LambdaExpression)ExpressionUtils.RemoveQuotes(call.Arguments[1]);
                             var lambdaBody = (MemberExpression)ExpressionUtils.RemoveQuotes(lambda.Body);
-                            QueryInfo.OrderBys.Add(new OrderBy(lambdaBody.Member.Name, OrderBy.OrderByDirection.Asc));
+                            var ob = new OrderBy(lambdaBody.Member.Name, OrderBy.OrderByDirection.Asc);
+                            ob.Expression = lambda.Body;
+                            QueryInfo.OrderBys.Add(ob);
                             break;
                         }
                     case ("Where"):
