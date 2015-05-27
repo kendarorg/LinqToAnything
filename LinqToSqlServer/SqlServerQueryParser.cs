@@ -40,13 +40,16 @@ namespace LinqToSqlServer
             var param = new Dictionary<string, object>();
             var sql = new StringBuilder();
 
-            switch (_methodName)
+            if (!string.IsNullOrWhiteSpace(_table))
             {
-                case ("Select"):
-                    sql.AppendFormat("SELECT * FROM [{0}] ", _table);
-                    break;
-                default:
-                    throw new Exception("Method " + _methodName + " not supported.");
+                switch (_methodName)
+                {
+                    case ("Select"):
+                        sql.AppendFormat("SELECT * FROM [{0}] ", _table);
+                        break;
+                    default:
+                        throw new Exception("Method " + _methodName + " not supported.");
+                }
             }
 
             if (_queryInfo.Clauses.Any())

@@ -123,15 +123,37 @@ namespace LinqToAnything.Visitors
             }
             else
             {
-                var lambda = Expression.Lambda(node);
-                var lc = lambda.Compile();
-                var value = lc.DynamicInvoke();
-                //result =  this.Visit(node.Expression);
-                _stack.Last().Parameters.Add(new Constant
+                var unary = node.Expression as UnaryExpression;
+                
+                object value = null;
+                if (unary==null)
                 {
-                    Value = value
-                });
-                result = Expression.Constant(value);
+                    var lambda = Expression.Lambda(node);
+                    var lc = lambda.Compile();
+                    value = lc.DynamicInvoke();
+                    //result =  this.Visit(node.Expression);
+                    _stack.Last().Parameters.Add(new Constant
+                    {
+                        Value = value
+                    });
+                    result = Expression.Constant(value);
+                }
+                else
+                {
+                    
+                    _stack.Last().Parameters.Add(new Member
+                    {
+                        Name = node.Member.Name
+                    });
+                    /*var lamp = Expression.Lambda(parameter);
+                    var lp = lamp.Compile();
+                    var lambda = Expression.Lambda(node,new ParameterExpression[]{parameter});
+                    var lc = lambda.Compile();
+                    var targ = lp.DynamicInvoke();
+                    value = lc.DynamicInvoke(targ);*/
+                    result = base.VisitMember(node);
+                }
+                
                 /*result = null;
                 object value = null;
                 var container = node.Expression as ConstantExpression;

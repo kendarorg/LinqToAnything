@@ -20,9 +20,11 @@ namespace LinqToSqlServer
     {
         private readonly bool _fake;
         private readonly QueryVisitor _queryVisitor;
-        private readonly SqlServerQueryProvider<T> _provider;
+        private  SqlServerQueryProvider<T> _provider;
         private readonly Expression _expression;
-        private readonly string _table;
+        private  string _table;
+        private SqlConnection _connection;
+        
 
         public ParserResult Result
         {
@@ -32,10 +34,19 @@ namespace LinqToSqlServer
             }
         }
 
+        public void Initialize(string table, SqlConnection connection,bool fake=false)
+        {
+            _table = table;
+
+            _connection = connection;
+            _provider = new SqlServerQueryProvider<T>(_table, connection, fake);
+        }
+
        public SqlServerQueryable(string table,SqlConnection connection,bool fake = false)
         {
             _table = table;
            _fake = fake;
+           _connection = connection;
            _provider = new SqlServerQueryProvider<T>(_table,connection, _fake);
             _expression = Expression.Constant(this);
         }
@@ -45,7 +56,7 @@ namespace LinqToSqlServer
            _table = table;
            _fake = fake;
             _queryVisitor = queryVisitor;
-
+            _connection = connection;
             _provider = new SqlServerQueryProvider<T>(_table, connection, _fake, _queryVisitor);
             _expression = Expression.Constant(this);
         }

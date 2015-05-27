@@ -14,7 +14,7 @@ namespace LinqToSqlServer
     {
         private readonly bool _fake;
         private readonly string _table;
-        private readonly SqlConnection _connection;
+        private SqlConnection _connection;
         private readonly QueryVisitor _queryVisitor;
         private ParserResult _result;
         public ParserResult Result
@@ -31,9 +31,11 @@ namespace LinqToSqlServer
 
         public SqlServerQueryProvider(string table, SqlConnection connection, bool fake, QueryVisitor queryVisitor = null)
         {
+            
             _table = table;
             _fake = fake;
             _queryVisitor = queryVisitor ?? new QueryVisitor();
+            _connection = connection;
         }
 
         public IQueryable CreateQuery(Expression expression)
@@ -48,12 +50,37 @@ namespace LinqToSqlServer
             var queryVisitor = new QueryVisitor(_queryVisitor.QueryInfo.Clone());
             queryVisitor.Visit(expression);
 
-            var parser = new SqlServerQueryParser(_table, queryVisitor.QueryInfo);
-            _result = parser.Parse();
+            var isNotOpen = false;
+            if (!_fake)
+            {
+                isNotOpen = _connection.State != ConnectionState.Open;
+            }
+            try
+            {
+                if (isNotOpen && !_fake)
+                {
+                    _connection.Open();
+                }
 
-            var cnt = new SqlServerQueryable<TElement>(_table, _connection, _fake, queryVisitor);
-            _resultContainer = cnt;
-            return cnt;
+                var parser = new SqlServerQueryParser(_table, queryVisitor.QueryInfo);
+                _result = parser.Parse();
+
+                var cnt = new SqlServerQueryable<TElement>(_table, _connection, _fake, queryVisitor);
+                _resultContainer = cnt;
+                return cnt;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+                throw;
+            }
+            finally
+            {
+                if (isNotOpen && !_fake)
+                {
+                    //_connection.Close();
+                }
+            }
         }
 
 
@@ -80,7 +107,7 @@ namespace LinqToSqlServer
                 {
                     return new List<TResult>();
                 }
-                return _connection.Query<TResult>(_result.Sql, _result.Parameters);
+                return _connection.Query<TResult>(_result.Sql, _result.Parameters).ToList();
             }
             catch (Exception ex)
             {

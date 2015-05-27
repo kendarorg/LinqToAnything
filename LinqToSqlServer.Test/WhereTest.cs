@@ -1,5 +1,7 @@
 ﻿using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System.Linq.Expressions;
+using System;
 
 namespace LinqToSqlServer.Test
 {
@@ -119,6 +121,27 @@ namespace LinqToSqlServer.Test
             Assert.AreEqual("SELECT * FROM [TEST]  WHERE (([Index]=@p_0) OR ([Name]<>@p_1))", result.Sql);
             Assert.AreEqual(2, result.Parameters["p_0"]);
             Assert.AreEqual("Test", result.Parameters["p_1"]);
+        }
+
+        public void Delete(Guid id)
+        {
+
+            Delete<SomeEntity>(a => a.Id == id);
+        }
+
+        public void Delete<T>(Expression<Func<T, bool>> expr)
+        {
+            IQueryable<T> pq = new SqlServerQueryable<T>("TEST", null, true);
+            pq.Where(expr).ToArray();
+            var result = ((SqlServerQueryable<T>)pq).Result;
+            Assert.AreEqual("SELECT * FROM [TEST]  WHERE [Id]=@p_0", result.Sql);
+            Assert.AreEqual(Guid.Empty, result.Parameters["p_0"]);
+        }
+
+        [TestMethod]
+        public void UnaryExpressions()
+        {
+            Delete(Guid.Empty);
         }
     }
 
