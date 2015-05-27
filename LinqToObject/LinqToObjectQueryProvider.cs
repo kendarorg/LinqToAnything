@@ -1,22 +1,22 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using LinqToAnything;
 using LinqToAnything.Visitors;
 
-namespace LinqToAnything
+namespace LinqToObject
 {
-    public class QueryProvider<T> : IQueryProvider
+    public class LinqToObjectQueryProvider<T> : IQueryProvider
     {
-        private readonly DataQuery<T> _dataQuery;
-        private readonly CountQuery _countQuery;
+        private readonly LinqToObjectDataQuery<T> _linqToObjectDataQuery;
+        private readonly LinqToObjectCountQuery _linqToObjectCountQuery;
         private readonly QueryVisitor _queryVisitor;
 
 
-        public QueryProvider(DataQuery<T> dataQuery, CountQuery countQuery, QueryVisitor queryVisitor = null)
+        public LinqToObjectQueryProvider(LinqToObjectDataQuery<T> linqToObjectDataQuery, LinqToObjectCountQuery linqToObjectCountQuery, QueryVisitor queryVisitor = null)
         {
-            _dataQuery = dataQuery;
-            this._countQuery = countQuery;
+            _linqToObjectDataQuery = linqToObjectDataQuery;
+            this._linqToObjectCountQuery = linqToObjectCountQuery;
             this._queryVisitor = queryVisitor ?? new QueryVisitor();
         }
 
@@ -31,10 +31,10 @@ namespace LinqToAnything
             queryVisitor.Visit(expression);
             if (typeof(TElement) != typeof(T))
             {
-                DataQuery<TElement> q = info => _dataQuery(info).Select(queryVisitor.Transform<T, TElement>());
-                return new DelegateQueryable<TElement>(q, _countQuery, null, queryVisitor);
+                LinqToObjectDataQuery<TElement> q = info => _linqToObjectDataQuery(info).Select(queryVisitor.Transform<T, TElement>());
+                return new LinqToObjectQueryable<TElement>(q, _linqToObjectCountQuery, null, queryVisitor);
             }
-            return new DelegateQueryable<TElement>((DataQuery<TElement>)((object)_dataQuery), _countQuery, expression, queryVisitor);
+            return new LinqToObjectQueryable<TElement>((LinqToObjectDataQuery<TElement>)((object)_linqToObjectDataQuery), _linqToObjectCountQuery, expression, queryVisitor);
  
         }
 
@@ -42,7 +42,7 @@ namespace LinqToAnything
         public IEnumerable<TResult> GetEnumerable<TResult>()
         {
             var queryVisitor = new QueryVisitor(_queryVisitor.QueryInfo.Clone());
-            var results = _dataQuery(queryVisitor.QueryInfo);
+            var results = _linqToObjectDataQuery(queryVisitor.QueryInfo);
             //if (countQuery.Select != null)
             //{
             //    var projectionFunc = (Func<T, TResult>)countQuery.Select.Lambda.Compile();
@@ -64,14 +64,12 @@ namespace LinqToAnything
             queryVisitor.Visit(expression);
             if (methodCallExpression.Method.Name == "Count" && typeof(TResult) == typeof(int))
             {
-                return (TResult) (object) _countQuery(queryVisitor.QueryInfo);
+                return (TResult) (object) _linqToObjectCountQuery(queryVisitor.QueryInfo);
             }
 
-            var array = _dataQuery(queryVisitor.QueryInfo).ToList();
-            var data = array.AsQueryable();
-
-            var newExp = Expression.Call(methodCallExpression.Method, Expression.Constant(data));
-            return data.Provider.Execute<TResult>(newExp);
+            var allResult = GetEnumerable<TResult>().AsQueryable();
+            var newExp = Expression.Call(methodCallExpression.Method, Expression.Constant(allResult));
+            return allResult.Provider.Execute<TResult>(newExp);
         }
     }
 

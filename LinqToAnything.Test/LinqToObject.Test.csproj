@@ -72,6 +72,10 @@
       <Project>{a4445a36-c2d6-4747-8f93-893bffd2ef76}</Project>
       <Name>LinqToAnything</Name>
     </ProjectReference>
+    <ProjectReference Include="..\LinqToObject\LinqToObject.csproj">
+      <Project>{90b61010-1452-4ab5-af8e-0fff81045ad1}</Project>
+      <Name>LinqToObject</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

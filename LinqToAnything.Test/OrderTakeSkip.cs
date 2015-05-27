@@ -4,6 +4,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using LinqToAnything.Results;
 using LinqToAnything;
+using LinqToObject;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 namespace LinqToAnything.Tests
 {
@@ -19,7 +20,7 @@ namespace LinqToAnything.Tests
         {
             var ds = new DataSource<SomeEntity>();
 
-            IQueryable<SomeEntity> pq = new DelegateQueryable<SomeEntity>(ds.Select,ds.Count);
+            IQueryable<SomeEntity> pq = new LinqToObjectQueryable<SomeEntity>(ds.Select,ds.Count);
 
             var items = pq.Skip(3).Take(2).ToArray();
             Assert.AreEqual("SELECT *  SKIP 3  TAKE 2", ds.Query.ToString());
@@ -31,7 +32,7 @@ namespace LinqToAnything.Tests
         {
             var ds = new DataSource<SomeEntity>();
 
-            IQueryable<SomeEntity> pq = new DelegateQueryable<SomeEntity>(ds.Select, ds.Count);
+            IQueryable<SomeEntity> pq = new LinqToObjectQueryable<SomeEntity>(ds.Select, ds.Count);
 
             var items = pq.OrderBy(p => p.Index).ToArray();
             Assert.AreEqual("SELECT * ORDER BY Index ASC", ds.Query.ToString());
@@ -43,7 +44,7 @@ namespace LinqToAnything.Tests
         {
             var ds = new DataSource<SomeEntity>();
 
-            IQueryable<SomeEntity> pq = new DelegateQueryable<SomeEntity>(ds.Select, ds.Count);
+            IQueryable<SomeEntity> pq = new LinqToObjectQueryable<SomeEntity>(ds.Select, ds.Count);
 
             var items = pq.OrderByDescending(p => p.Index).ToArray();
             Assert.AreEqual("SELECT * ORDER BY Index DESC", ds.Query.ToString());
@@ -55,7 +56,7 @@ namespace LinqToAnything.Tests
         {
             var ds = new DataSource<SomeEntity>();
 
-            IQueryable<SomeEntity> pq = new DelegateQueryable<SomeEntity>(ds.Select, ds.Count);
+            IQueryable<SomeEntity> pq = new LinqToObjectQueryable<SomeEntity>(ds.Select, ds.Count);
 
             var items = pq.OrderByDescending(p => p.Index).ThenBy(p => p.Name).ToArray();
             Assert.AreEqual("SELECT * ORDER BY Index DESC, Name ASC", ds.Query.ToString());

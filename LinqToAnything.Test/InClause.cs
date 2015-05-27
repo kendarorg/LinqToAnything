@@ -1,4 +1,5 @@
 ﻿using LinqToAnything.Tests;
+using LinqToObject;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
@@ -16,7 +17,7 @@ namespace LinqToAnything.Test
         {
             var ds = new DataSource<SomeEntity>();
 
-            IQueryable<SomeEntity> pq = new DelegateQueryable<SomeEntity>(ds.Select);
+            IQueryable<SomeEntity> pq = new LinqToObjectQueryable<SomeEntity>(ds.Select);
             var ids = new List<int>{1,4,8};
 
             var items = pq.Where(p => ids.Contains(p.Index)).ToArray();

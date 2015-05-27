@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using LinqToAnything.Results;
+using LinqToObject;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace LinqToAnything.Tests
@@ -16,7 +17,7 @@ namespace LinqToAnything.Tests
         {
             var ds = new DataSource<SomeEntity>();
 
-            IQueryable<SomeEntity> pq = new DelegateQueryable<SomeEntity>(ds.Select, ds.Count);
+            IQueryable<SomeEntity> pq = new LinqToObjectQueryable<SomeEntity>(ds.Select, ds.Count);
 
             var items = pq.Where(e => e.Index == 2).ToArray();
             Assert.AreEqual("SELECT * WHERE  Index Equal  2", ds.Query.ToString());
@@ -28,7 +29,7 @@ namespace LinqToAnything.Tests
         {
             var ds = new DataSource<SomeEntity>();
 
-            IQueryable<SomeEntity> pq = new DelegateQueryable<SomeEntity>(ds.Select, ds.Count);
+            IQueryable<SomeEntity> pq = new LinqToObjectQueryable<SomeEntity>(ds.Select, ds.Count);
 
             var items = pq.Where(e => e.Name.Contains("test")).ToArray();
             Assert.AreEqual("SELECT * WHERE  Name.Contains(test)", ds.Query.ToString());
@@ -40,7 +41,7 @@ namespace LinqToAnything.Tests
         {
             var ds = new DataSource<SomeEntity>();
 
-            IQueryable<SomeEntity> pq = new DelegateQueryable<SomeEntity>(ds.Select, ds.Count);
+            IQueryable<SomeEntity> pq = new LinqToObjectQueryable<SomeEntity>(ds.Select, ds.Count);
 
             var items = pq.Where(e => e.Name.ToLower().Contains("test")).ToArray();
             Assert.AreEqual("SELECT * WHERE  Name.ToLower().Contains(test)", ds.Query.ToString());
@@ -51,7 +52,7 @@ namespace LinqToAnything.Tests
         {
             var ds = new DataSource<SomeEntity>();
 
-            IQueryable<SomeEntity> pq = new DelegateQueryable<SomeEntity>(ds.Select, ds.Count);
+            IQueryable<SomeEntity> pq = new LinqToObjectQueryable<SomeEntity>(ds.Select, ds.Count);
 
             var items = pq.Where(e => e.Index == e.OuterIndex).ToArray();
             Assert.AreEqual("SELECT * WHERE  Index Equal  OuterIndex", ds.Query.ToString());
@@ -70,7 +71,7 @@ namespace LinqToAnything.Tests
                 }
             };
 
-            IQueryable<SomeEntity> pq = new DelegateQueryable<SomeEntity>(ds.Select, ds.Count);
+            IQueryable<SomeEntity> pq = new LinqToObjectQueryable<SomeEntity>(ds.Select, ds.Count);
 
             var items = pq.Where(e => e.Index == item.Value.SubValue).ToArray();
             Assert.AreEqual("SELECT * WHERE  Index Equal  12", ds.Query.ToString());
@@ -81,7 +82,7 @@ namespace LinqToAnything.Tests
         {
             var ds = new DataSource<SomeEntity>();
 
-            IQueryable<SomeEntity> pq = new DelegateQueryable<SomeEntity>(ds.Select, ds.Count);
+            IQueryable<SomeEntity> pq = new LinqToObjectQueryable<SomeEntity>(ds.Select, ds.Count);
 
             var items = pq.Where(e => e.Index == 2 && e.Name != "Test").ToArray();
             Assert.AreEqual("SELECT * WHERE  ((Index Equal  2) AND  (Name NotEqual  Test))", ds.Query.ToString());
@@ -94,7 +95,7 @@ namespace LinqToAnything.Tests
         {
             var ds = new DataSource<SomeEntity>();
 
-            IQueryable<SomeEntity> pq = new DelegateQueryable<SomeEntity>(ds.Select, ds.Count);
+            IQueryable<SomeEntity> pq = new LinqToObjectQueryable<SomeEntity>(ds.Select, ds.Count);
 
             var items = pq.Where(e => e.Index == 2 || e.Name != "Test").ToArray();
             Assert.AreEqual("SELECT * WHERE  ((Index Equal  2) OR  (Name NotEqual  Test))", ds.Query.ToString());
