@@ -21,12 +21,9 @@ namespace LinqToSqlServer
         {
             get
             {
-                if (_result == null)
+                if (_resultContainer != null && _resultContainer.Result!=null)
                 {
-                    if (_resultContainer != null)
-                    {
-                        return _resultContainer.Result;
-                    }
+                    return _resultContainer.Result;
                 }
                 return _result;
             }

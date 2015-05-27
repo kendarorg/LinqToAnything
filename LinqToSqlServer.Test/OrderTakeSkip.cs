@@ -16,14 +16,13 @@ namespace LinqToAnything.Tests
     {
         
         [TestMethod]
-        [Ignore]
         public void CanSkipAndTake()
         {
             IQueryable<SomeEntity> pq = new SqlServerQueryable<SomeEntity>("TEST", null, true);
 
             var items = pq.Skip(3).Take(2).ToArray();
             var result = ((SqlServerQueryable<SomeEntity>)pq).Result;
-            Assert.AreEqual("SELECT * FROM [TEST]  WHERE (([Index]=@p_0) OR ([Name]<>@p_1))", result.Sql);
+            Assert.AreEqual("SELECT * FROM [TEST]  OFFSET 3 ROWS  FETCH NEXT 2 ROWS ONLY ", result.Sql);
 
         }
 
@@ -56,7 +55,31 @@ namespace LinqToAnything.Tests
 
             var items = pq.OrderByDescending(p => p.Index).ThenBy(p => p.Name).ToArray();
             var result = ((SqlServerQueryable<SomeEntity>)pq).Result;
-            Assert.AreEqual("SELECT * FROM [TEST]  WHERE (([Index]=@p_0) OR ([Name]<>@p_1))", result.Sql);
+            Assert.AreEqual("SELECT * FROM [TEST]  ORDER BY [Index] DESC , [Name] ASC ", result.Sql);
+        }
+
+        [TestMethod]
+        public void CanDoWhereOrderByMulti()
+        {
+            IQueryable<SomeEntity> pq = new SqlServerQueryable<SomeEntity>("TEST", null, true);
+
+            var items = pq.Where(p=>p.Name=="Test").OrderByDescending(p => p.Index).ThenBy(p => p.Name).ToArray();
+            var result = ((SqlServerQueryable<SomeEntity>)pq).Result;
+            Assert.AreEqual("SELECT * FROM [TEST]  WHERE [Name]=@p_0 ORDER BY [Index] DESC , [Name] ASC ", result.Sql);
+            Assert.AreEqual("Test", result.Parameters["p_0"]);
+        }
+
+
+        [TestMethod]
+        public void CanSkipAndTakeORderByWhere()
+        {
+            IQueryable<SomeEntity> pq = new SqlServerQueryable<SomeEntity>("TEST", null, true);
+
+            var items = pq.Where(p => p.Name == "Test").OrderByDescending(p => p.Index).Skip(3).Take(2).ToArray();
+            var result = ((SqlServerQueryable<SomeEntity>)pq).Result;
+            Assert.AreEqual("SELECT * FROM [TEST]  WHERE [Name]=@p_0 ORDER BY [Index] DESC  OFFSET 3 ROWS  FETCH NEXT 2 ROWS ONLY ", result.Sql);
+            Assert.AreEqual("Test", result.Parameters["p_0"]);
+
         }
 
         

@@ -46,7 +46,7 @@ namespace LinqToSqlServer
            _fake = fake;
             _queryVisitor = queryVisitor;
 
-            _provider = new SqlServerQueryProvider<T>(_table,connection, _fake);
+            _provider = new SqlServerQueryProvider<T>(_table, connection, _fake, _queryVisitor);
             _expression = Expression.Constant(this);
         }
 

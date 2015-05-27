@@ -19,6 +19,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LinqToObject", "LinqToObjec
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LinqToSqlServer.Test", "LinqToSqlServer.Test\LinqToSqlServer.Test.csproj", "{59DEED1E-85CF-4D52-A619-D8C4E3FA4EBD}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{6CDDF6F9-1645-42A0-A433-26BA6325F8AB}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -48,5 +50,9 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{192594C5-CC7E-4A40-AAE8-E3AE403D7CA2} = {6CDDF6F9-1645-42A0-A433-26BA6325F8AB}
+		{59DEED1E-85CF-4D52-A619-D8C4E3FA4EBD} = {6CDDF6F9-1645-42A0-A433-26BA6325F8AB}
 	EndGlobalSection
 EndGlobal

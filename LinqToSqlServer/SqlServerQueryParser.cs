@@ -76,6 +76,16 @@ namespace LinqToSqlServer
                 }
             }
 
+            if (_queryInfo.Skip > 0)
+            {
+                sql.AppendFormat(" OFFSET {0} ROWS ", _queryInfo.Skip);
+            }
+
+            if (_queryInfo.Take != null && _queryInfo.Take.Value > 0)
+            {
+                sql.AppendFormat(" FETCH NEXT {0} ROWS ONLY ", _queryInfo.Take.Value);
+            }
+
             return new ParserResult
             {
                 Sql = sql.ToString(),
@@ -85,7 +95,7 @@ namespace LinqToSqlServer
 
         private void Parse(OrderBy orderBy, StringBuilder sql, Dictionary<string, object> param)
         {
-            sql.AppendFormat("[{0}]",orderBy.Name);
+            sql.AppendFormat("[{0}]", orderBy.Name);
             if (orderBy.Direction == OrderBy.OrderByDirection.Asc)
             {
                 sql.Append(" ASC ");
