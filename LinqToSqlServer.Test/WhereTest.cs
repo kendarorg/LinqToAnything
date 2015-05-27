@@ -7,25 +7,40 @@ namespace LinqToSqlServer.Test
     public class WhereTest
     {
         [TestMethod]
+        public void All()
+        {
+
+
+            IQueryable<SomeEntity> pq = new SqlServerQueryable<SomeEntity>("TEST", null, true);
+
+            pq.ToArray();
+            var result = ((SqlServerQueryable<SomeEntity>)pq).Result;
+            Assert.AreEqual("SELECT * FROM [TEST] ", result.Sql);
+        }
+
+        [TestMethod]
         public void WhereWithValue()
         {
-            
 
-            IQueryable<SomeEntity> pq = new SqlServerQueryable<SomeEntity>(null, true);
 
-            var items = pq.Where(e => e.Index == 2).ToArray();
-            Assert.AreEqual("SELECT * WHERE  Index Equal  2", ((SqlServerQueryable<SomeEntity>)pq).Result.Sql);
+            IQueryable<SomeEntity> pq = new SqlServerQueryable<SomeEntity>("TEST", null, true);
+
+            pq.Where(e => e.Index == 2).ToArray();
+            var result= ((SqlServerQueryable<SomeEntity>)pq).Result;
+            Assert.AreEqual("SELECT * FROM [TEST]  WHERE [Index]=@p_0",result.Sql);
+            Assert.AreEqual(2,result.Parameters["p_0"]);
         }
-        
-#if notyet
+
 
         [TestMethod]
         public void WhereWithContainsSingleValue()
         {
-            IQueryable<SomeEntity> pq = new SqlServerQueryable<SomeEntity>(null, true);
+            IQueryable<SomeEntity> pq = new SqlServerQueryable<SomeEntity>("TEST",null, true);
 
             var items = pq.Where(e => e.Name.Contains("test")).ToArray();
-            Assert.AreEqual("SELECT * WHERE  Name.Contains(test)", ((SqlServerQueryable<SomeEntity>)pq).Result.Sql);
+            var result = ((SqlServerQueryable<SomeEntity>)pq).Result;
+            Assert.AreEqual("SELECT * FROM [TEST]  WHERE [Name] LIKE @p_0", result.Sql);
+            Assert.AreEqual("%test%", result.Parameters["p_0"]);
         }
 
 
@@ -34,10 +49,12 @@ namespace LinqToSqlServer.Test
         {
             
 
-            IQueryable<SomeEntity> pq = new SqlServerQueryable<SomeEntity>(null, true);
+            IQueryable<SomeEntity> pq = new SqlServerQueryable<SomeEntity>("TEST",null, true);
 
             var items = pq.Where(e => e.Name.ToLower().Contains("test")).ToArray();
-            Assert.AreEqual("SELECT * WHERE  Name.ToLower().Contains(test)", ((SqlServerQueryable<SomeEntity>)pq).Result.Sql);
+            var result = ((SqlServerQueryable<SomeEntity>)pq).Result;
+            Assert.AreEqual("SELECT * FROM [TEST]  WHERE LOWER([Name]) LIKE @p_0", result.Sql);
+            Assert.AreEqual("%test%", result.Parameters["p_0"]);
         }
 
         [TestMethod]
@@ -45,10 +62,11 @@ namespace LinqToSqlServer.Test
         {
             
 
-            IQueryable<SomeEntity> pq = new SqlServerQueryable<SomeEntity>(null, true);
+            IQueryable<SomeEntity> pq = new SqlServerQueryable<SomeEntity>("TEST",null, true);
 
             var items = pq.Where(e => e.Index == e.OuterIndex).ToArray();
-            Assert.AreEqual("SELECT * WHERE  Index Equal  OuterIndex", ((SqlServerQueryable<SomeEntity>)pq).Result.Sql);
+            var result = ((SqlServerQueryable<SomeEntity>)pq).Result;
+            Assert.AreEqual("SELECT * FROM [TEST]  WHERE [Index]=[OuterIndex]", result.Sql);
         }
 
         [TestMethod]
@@ -64,21 +82,27 @@ namespace LinqToSqlServer.Test
                 }
             };
 
-            IQueryable<SomeEntity> pq = new SqlServerQueryable<SomeEntity>(null, true);
+            IQueryable<SomeEntity> pq = new SqlServerQueryable<SomeEntity>("TEST",null, true);
 
             var items = pq.Where(e => e.Index == item.Value.SubValue).ToArray();
-            Assert.AreEqual("SELECT * WHERE  Index Equal  12", ((SqlServerQueryable<SomeEntity>)pq).Result.Sql);
+            var result = ((SqlServerQueryable<SomeEntity>)pq).Result;
+            Assert.AreEqual("SELECT * FROM [TEST]  WHERE [Index]=@p_0", result.Sql);
+            Assert.AreEqual(12, result.Parameters["p_0"]);
         }
+
 
         [TestMethod]
         public void AndCondition()
         {
             
 
-            IQueryable<SomeEntity> pq = new SqlServerQueryable<SomeEntity>(null, true);
+            IQueryable<SomeEntity> pq = new SqlServerQueryable<SomeEntity>("TEST",null, true);
 
-            var items = pq.Where(e => e.Index == 2 && e.Name != "Test").ToArray();
-            Assert.AreEqual("SELECT * WHERE  ((Index Equal  2) AND  (Name NotEqual  Test))", ((SqlServerQueryable<SomeEntity>)pq).Result.Sql);
+            var items = pq.Where(e => e.Index == 2 && e.Name != "Test").ToArray(); 
+            var result = ((SqlServerQueryable<SomeEntity>)pq).Result;
+            Assert.AreEqual("SELECT * FROM [TEST]  WHERE (([Index]=@p_0) AND ([Name]<>@p_1))", result.Sql);
+            Assert.AreEqual(2, result.Parameters["p_0"]);
+            Assert.AreEqual("Test", result.Parameters["p_1"]);
 
         }
 
@@ -88,12 +112,14 @@ namespace LinqToSqlServer.Test
         {
             
 
-            IQueryable<SomeEntity> pq = new SqlServerQueryable<SomeEntity>(null, true);
+            IQueryable<SomeEntity> pq = new SqlServerQueryable<SomeEntity>("TEST",null, true);
 
             var items = pq.Where(e => e.Index == 2 || e.Name != "Test").ToArray();
-            Assert.AreEqual("SELECT * WHERE  ((Index Equal  2) OR  (Name NotEqual  Test))", ((SqlServerQueryable<SomeEntity>)pq).Result.Sql);
+            var result = ((SqlServerQueryable<SomeEntity>)pq).Result;
+            Assert.AreEqual("SELECT * FROM [TEST]  WHERE (([Index]=@p_0) OR ([Name]<>@p_1))", result.Sql);
+            Assert.AreEqual(2, result.Parameters["p_0"]);
+            Assert.AreEqual("Test", result.Parameters["p_1"]);
         }
-#endif
     }
 
 }

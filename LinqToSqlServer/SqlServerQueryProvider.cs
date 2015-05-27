@@ -10,23 +10,33 @@ using LinqToAnything.Visitors;
 
 namespace LinqToSqlServer
 {
-    public class SqlServerQueryProvider<T> : IQueryProvider
+    public class SqlServerQueryProvider<T> : IQueryProvider, IResultContainer
     {
         private readonly bool _fake;
+        private readonly string _table;
         private readonly SqlConnection _connection;
         private readonly QueryVisitor _queryVisitor;
-        public ParserResult Result { get; private set; }
-
-        public SqlServerQueryProvider(SqlConnection connection,bool fake, QueryVisitor queryVisitor = null)
+        private ParserResult _result;
+        public ParserResult Result
         {
-            _fake = fake;
-            _queryVisitor = queryVisitor ?? new QueryVisitor();
+            get
+            {
+                if (_result == null)
+                {
+                    if (_resultContainer != null)
+                    {
+                        return _resultContainer.Result;
+                    }
+                }
+                return _result;
+            }
         }
 
-        public SqlServerQueryProvider(SqlConnection connection, bool fake)
+        public SqlServerQueryProvider(string table, SqlConnection connection, bool fake, QueryVisitor queryVisitor = null)
         {
+            _table = table;
             _fake = fake;
-            _connection = connection;
+            _queryVisitor = queryVisitor ?? new QueryVisitor();
         }
 
         public IQueryable CreateQuery(Expression expression)
@@ -34,16 +44,19 @@ namespace LinqToSqlServer
             return CreateQuery<T>(expression);
         }
 
+        private IResultContainer _resultContainer;
+
         public IQueryable<TElement> CreateQuery<TElement>(Expression expression)
         {
             var queryVisitor = new QueryVisitor(_queryVisitor.QueryInfo.Clone());
             queryVisitor.Visit(expression);
-            if (typeof(TElement) != typeof(T))
-            {
-                return new SqlServerQueryable<TElement>(_connection,_fake, queryVisitor);
-            }
-            return new SqlServerQueryable<TElement>(_connection, _fake, queryVisitor);
 
+            var parser = new SqlServerQueryParser(_table, queryVisitor.QueryInfo);
+            _result = parser.Parse();
+
+            var cnt = new SqlServerQueryable<TElement>(_table, _connection, _fake, queryVisitor);
+            _resultContainer = cnt;
+            return cnt;
         }
 
 
@@ -62,13 +75,15 @@ namespace LinqToSqlServer
                 {
                     _connection.Open();
                 }
-                var parser = new SqlServerQueryParser(queryVisitor.QueryInfo);
-                Result = parser.Parse();
+
+                var parser = new SqlServerQueryParser(_table, queryVisitor.QueryInfo);
+                _result = parser.Parse();
+               
                 if (_fake)
                 {
                     return new List<TResult>();
                 }
-                return _connection.Query<TResult>(Result.Sql, Result.Parameters);
+                return _connection.Query<TResult>(_result.Sql, _result.Parameters);
             }
             catch (Exception ex)
             {
@@ -110,13 +125,13 @@ namespace LinqToSqlServer
 
                 if (methodCallExpression.Method.Name == "Count" && typeof(TResult) == typeof(int))
                 {
-                    var parser = new SqlServerQueryParser(queryVisitor.QueryInfo, methodCallExpression.Method.Name);
-                    Result = parser.Parse();
+                    var parser = new SqlServerQueryParser(_table, queryVisitor.QueryInfo, methodCallExpression.Method.Name);
+                    _result = parser.Parse();
                     if (_fake)
                     {
                         return default(TResult);
                     }
-                    return _connection.ExecuteScalar<TResult>(Result.Sql, Result.Parameters);
+                    return _connection.ExecuteScalar<TResult>(Result.Sql, _result.Parameters);
                 }
 
                 var allResult = GetEnumerable<TResult>().AsQueryable();

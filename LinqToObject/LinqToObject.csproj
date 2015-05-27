@@ -39,7 +39,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="LinqToObjectDataQuery.cs" />
     <Compile Include="LinqToObjectQueryable.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="LinqToObjectQueryProvider.cs" />

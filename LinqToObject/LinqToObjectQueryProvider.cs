@@ -8,12 +8,12 @@ namespace LinqToObject
 {
     public class LinqToObjectQueryProvider<T> : IQueryProvider
     {
-        private readonly LinqToObjectDataQuery<T> _linqToObjectDataQuery;
-        private readonly LinqToObjectCountQuery _linqToObjectCountQuery;
+        private readonly LinqToAnythingDataQuery<T> _linqToObjectDataQuery;
+        private readonly LinqToAnythingCountQuery _linqToObjectCountQuery;
         private readonly QueryVisitor _queryVisitor;
 
 
-        public LinqToObjectQueryProvider(LinqToObjectDataQuery<T> linqToObjectDataQuery, LinqToObjectCountQuery linqToObjectCountQuery, QueryVisitor queryVisitor = null)
+        public LinqToObjectQueryProvider(LinqToAnythingDataQuery<T> linqToObjectDataQuery, LinqToAnythingCountQuery linqToObjectCountQuery, QueryVisitor queryVisitor = null)
         {
             _linqToObjectDataQuery = linqToObjectDataQuery;
             this._linqToObjectCountQuery = linqToObjectCountQuery;
@@ -31,10 +31,10 @@ namespace LinqToObject
             queryVisitor.Visit(expression);
             if (typeof(TElement) != typeof(T))
             {
-                LinqToObjectDataQuery<TElement> q = info => _linqToObjectDataQuery(info).Select(queryVisitor.Transform<T, TElement>());
+                LinqToAnythingDataQuery<TElement> q = info => _linqToObjectDataQuery(info).Select(queryVisitor.Transform<T, TElement>());
                 return new LinqToObjectQueryable<TElement>(q, _linqToObjectCountQuery, null, queryVisitor);
             }
-            return new LinqToObjectQueryable<TElement>((LinqToObjectDataQuery<TElement>)((object)_linqToObjectDataQuery), _linqToObjectCountQuery, expression, queryVisitor);
+            return new LinqToObjectQueryable<TElement>((LinqToAnythingDataQuery<TElement>)((object)_linqToObjectDataQuery), _linqToObjectCountQuery, expression, queryVisitor);
  
         }
 

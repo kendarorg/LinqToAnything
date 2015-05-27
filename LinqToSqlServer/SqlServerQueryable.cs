@@ -11,26 +11,42 @@ using LinqToAnything.Visitors;
 
 namespace LinqToSqlServer
 {
-    public class SqlServerQueryable<T> : IOrderedQueryable<T>
+    public interface IResultContainer 
+    {
+        ParserResult Result { get; }
+    }
+
+    public class SqlServerQueryable<T> : IOrderedQueryable<T>,IResultContainer
     {
         private readonly bool _fake;
         private readonly QueryVisitor _queryVisitor;
         private readonly SqlServerQueryProvider<T> _provider;
         private readonly Expression _expression;
+        private readonly string _table;
 
-       public SqlServerQueryable(SqlConnection connection,bool fake = false)
+        public ParserResult Result
         {
+            get
+            {
+                return _provider.Result;
+            }
+        }
+
+       public SqlServerQueryable(string table,SqlConnection connection,bool fake = false)
+        {
+            _table = table;
            _fake = fake;
-           _provider = new SqlServerQueryProvider<T>(connection,_fake);
+           _provider = new SqlServerQueryProvider<T>(_table,connection, _fake);
             _expression = Expression.Constant(this);
         }
 
-        internal SqlServerQueryable(SqlConnection connection, bool fake, QueryVisitor queryVisitor = null)
+       internal SqlServerQueryable(string table, SqlConnection connection, bool fake, QueryVisitor queryVisitor = null)
        {
+           _table = table;
            _fake = fake;
             _queryVisitor = queryVisitor;
 
-            _provider = new SqlServerQueryProvider<T>(connection, _fake);
+            _provider = new SqlServerQueryProvider<T>(_table,connection, _fake);
             _expression = Expression.Constant(this);
         }
 
@@ -50,14 +66,10 @@ namespace LinqToSqlServer
             get { return _provider; }
         }
 
-        public ParserResult Result
-        {
-            get { return _provider.Result; }
-        }
 
         public IEnumerator<T> GetEnumerator()
         {
-            return _provider.GetEnumerable<T>().GetEnumerator();
+            return  _provider.GetEnumerable<T>().GetEnumerator();
         }
 
         IEnumerator IEnumerable.GetEnumerator()

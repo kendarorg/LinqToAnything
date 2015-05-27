@@ -22,7 +22,7 @@ namespace LinqToAnything.Test
         [TestMethod]
         public void CanDoACountWithAFilter()
         {
-            LinqToObjectDataQuery<SomeEntity> getPageFromLinqToObjectDataSource = (info) => SomeDataSource(info);
+            LinqToAnythingDataQuery<SomeEntity> getPageFromLinqToObjectDataSource = (info) => SomeDataSource(info);
 
             IQueryable<SomeEntity> pq = new LinqToObjectQueryable<SomeEntity>(getPageFromLinqToObjectDataSource);
             var items = pq.Where(s => s.Name.Contains("07"));
@@ -34,7 +34,7 @@ namespace LinqToAnything.Test
         [TestMethod]
         public void CanDoACountWithANullComparison()
         {
-            LinqToObjectDataQuery<SomeEntity> getPageFromLinqToObjectDataSource = (info) => SomeDataSource(info);
+            LinqToAnythingDataQuery<SomeEntity> getPageFromLinqToObjectDataSource = (info) => SomeDataSource(info);
 
             IQueryable<SomeEntity> pq = new LinqToObjectQueryable<SomeEntity>(getPageFromLinqToObjectDataSource);
             var items = pq.Where(s => s.Name != null);
@@ -47,7 +47,7 @@ namespace LinqToAnything.Test
         [TestMethod]
         public void CanDoACountWithNoIllEffect()
         {
-            LinqToObjectDataQuery<SomeEntity> getPageFromLinqToObjectDataSource = (info) => SomeDataSource(info);
+            LinqToAnythingDataQuery<SomeEntity> getPageFromLinqToObjectDataSource = (info) => SomeDataSource(info);
 
             IQueryable<SomeEntity> pq = new LinqToObjectQueryable<SomeEntity>(getPageFromLinqToObjectDataSource);
 
@@ -59,7 +59,7 @@ namespace LinqToAnything.Test
         [TestMethod]
         public void CanDoATakeWithNoIllEffectOnOtherQueries()
         {
-            LinqToObjectDataQuery<SomeEntity> getPageFromLinqToObjectDataSource = (info) => SomeDataSource(info);
+            LinqToAnythingDataQuery<SomeEntity> getPageFromLinqToObjectDataSource = (info) => SomeDataSource(info);
 
             IQueryable<SomeEntity> pq = new LinqToObjectQueryable<SomeEntity>(getPageFromLinqToObjectDataSource);
             var somethingElse = pq.Take(5);
@@ -72,7 +72,7 @@ namespace LinqToAnything.Test
         [TestMethod]
         public void CanDoASelectWithNoIllEffectOnOtherQueries()
         {
-            LinqToObjectDataQuery<SomeEntity> getPageFromLinqToObjectDataSource = (info) => SomeDataSource(info);
+            LinqToAnythingDataQuery<SomeEntity> getPageFromLinqToObjectDataSource = (info) => SomeDataSource(info);
 
             var pq = new LinqToObjectQueryable<SomeEntity>(getPageFromLinqToObjectDataSource).Select(e => new SomeEntityVm()
             {
@@ -89,7 +89,7 @@ namespace LinqToAnything.Test
         [TestMethod]
         public void CanWorkWithoutQuery()
         {
-            LinqToObjectDataQuery<SomeEntity> getPageFromLinqToObjectDataSource = (info) => SomeDataSource(info);
+            LinqToAnythingDataQuery<SomeEntity> getPageFromLinqToObjectDataSource = (info) => SomeDataSource(info);
 
             IQueryable<SomeEntity> pq = new LinqToObjectQueryable<SomeEntity>(getPageFromLinqToObjectDataSource);
 
@@ -106,7 +106,7 @@ namespace LinqToAnything.Test
         [TestMethod]
         public void CanHandleAMethodCallWhereClause()
         {
-            LinqToObjectDataQuery<SomeEntity> getPageFromLinqToObjectDataSource = (info) => SomeDataSource(info);
+            LinqToAnythingDataQuery<SomeEntity> getPageFromLinqToObjectDataSource = (info) => SomeDataSource(info);
             IQueryable<SomeEntity> pq = new LinqToObjectQueryable<SomeEntity>(getPageFromLinqToObjectDataSource);
             var items = pq.Where(s => s.Name.Contains("07"));
             Assert.AreEqual("Item 07", items.ToArray().Single().Name);
@@ -115,7 +115,7 @@ namespace LinqToAnything.Test
         [TestMethod]
         public void CanHandleAnOperatorWhereClause()
         {
-            LinqToObjectDataQuery<SomeEntity> getPageFromLinqToObjectDataSource = (info) => SomeDataSource(info);
+            LinqToAnythingDataQuery<SomeEntity> getPageFromLinqToObjectDataSource = (info) => SomeDataSource(info);
             IQueryable<SomeEntity> pq = new LinqToObjectQueryable<SomeEntity>(getPageFromLinqToObjectDataSource);
             var items = pq.Where(s => s.Name == "Item 07");
             Assert.AreEqual("Item 07", items.ToArray().Single().Name);
@@ -126,7 +126,7 @@ namespace LinqToAnything.Test
         [TestMethod]
         public void CanHandleAnOperatorWhereClauseOnAValueType()
         {
-            LinqToObjectDataQuery<SomeEntity> getPageFromLinqToObjectDataSource = (info) => SomeDataSource(info);
+            LinqToAnythingDataQuery<SomeEntity> getPageFromLinqToObjectDataSource = (info) => SomeDataSource(info);
             IQueryable<SomeEntity> pq = new LinqToObjectQueryable<SomeEntity>(getPageFromLinqToObjectDataSource);
             var items = pq.Where(s => s.Index != 0 && s.Index == 7);
             Assert.AreEqual("Item 07", items.ToArray().Single().Name);
@@ -137,7 +137,7 @@ namespace LinqToAnything.Test
         [TestMethod]
         public void CanHandleAnAndAlsoWhereClause()
         {
-            LinqToObjectDataQuery<SomeEntity> getPageFromLinqToObjectDataSource = (info) => SomeDataSource(info);
+            LinqToAnythingDataQuery<SomeEntity> getPageFromLinqToObjectDataSource = (info) => SomeDataSource(info);
             IQueryable<SomeEntity> pq = new LinqToObjectQueryable<SomeEntity>(getPageFromLinqToObjectDataSource);
             var items = pq.Where(s => s.Name == "Item 07" && s.Name == "Item 07");
             Assert.AreEqual("Item 07", items.ToArray().Single().Name);
@@ -146,7 +146,7 @@ namespace LinqToAnything.Test
         [TestMethod]
         public void CanHandleAnOrElseWhereClause()
         {
-            LinqToObjectDataQuery<SomeEntity> getPageFromLinqToObjectDataSource = (info) => SomeDataSource(info);
+            LinqToAnythingDataQuery<SomeEntity> getPageFromLinqToObjectDataSource = (info) => SomeDataSource(info);
             IQueryable<SomeEntity> pq = new LinqToObjectQueryable<SomeEntity>(getPageFromLinqToObjectDataSource);
             var items = pq.Where(s => s.Name == "Item 07" || s.Name == "Item 08");
             Assert.AreEqual("Item 07", items.ToArray().First().Name);
@@ -158,7 +158,7 @@ namespace LinqToAnything.Test
         [TestMethod]
         public void CanHandleASkipATakeAndAProjection()
         {
-            LinqToObjectDataQuery<SomeEntity> getPageFromLinqToObjectDataSource = (info) => SomeDataSource(info);
+            LinqToAnythingDataQuery<SomeEntity> getPageFromLinqToObjectDataSource = (info) => SomeDataSource(info);
             IQueryable<SomeEntity> pq = new LinqToObjectQueryable<SomeEntity>(getPageFromLinqToObjectDataSource);
             var items = pq.Skip(1).Take(1).Select(s => new Projection { Item = s.Name }).ToArray();
             Assert.AreEqual(1, Skipped);
@@ -169,7 +169,7 @@ namespace LinqToAnything.Test
         [TestMethod]
         public void CanHandleAProjectionASkipAndATake()
         {
-            LinqToObjectDataQuery<SomeEntity> getPageFromLinqToObjectDataSource = (info) => SomeDataSource(info);
+            LinqToAnythingDataQuery<SomeEntity> getPageFromLinqToObjectDataSource = (info) => SomeDataSource(info);
             IQueryable<SomeEntity> pq = new LinqToObjectQueryable<SomeEntity>(getPageFromLinqToObjectDataSource);
             var items = pq.Skip(1).Take(1).Select(s => new Projection { Item = s.Name }).ToArray();
             Assert.AreEqual(1, Skipped);
@@ -181,7 +181,7 @@ namespace LinqToAnything.Test
         [TestMethod]
         public void CanHandleAProjectionAndACount()
         {
-            LinqToObjectDataQuery<SomeEntity> getPageFromLinqToObjectDataSource = (info) => SomeDataSource(info);
+            LinqToAnythingDataQuery<SomeEntity> getPageFromLinqToObjectDataSource = (info) => SomeDataSource(info);
             IQueryable<SomeEntity> pq = new LinqToObjectQueryable<SomeEntity>(getPageFromLinqToObjectDataSource);
             var someEntities = pq
                 .Where(i => i.Name.Contains("07"));
@@ -196,7 +196,7 @@ namespace LinqToAnything.Test
         [TestMethod]
         public void CanHandleAProjection()
         {
-            LinqToObjectDataQuery<SomeEntity> getPageFromLinqToObjectDataSource = (info) => SomeDataSource(info);
+            LinqToAnythingDataQuery<SomeEntity> getPageFromLinqToObjectDataSource = (info) => SomeDataSource(info);
             IQueryable<SomeEntity> pq = new LinqToObjectQueryable<SomeEntity>(getPageFromLinqToObjectDataSource);
             var items = pq.Select(s => new Projection() { Item = s.Name });
             Assert.AreEqual("Item 01", items.ToArray().First().Item);
@@ -207,7 +207,7 @@ namespace LinqToAnything.Test
         [TestMethod]
         public void CanHandleAnOperatorWhereClauseAgainstAVariable()
         {
-            LinqToObjectDataQuery<SomeEntity> getPageFromLinqToObjectDataSource = (info) => SomeDataSource(info);
+            LinqToAnythingDataQuery<SomeEntity> getPageFromLinqToObjectDataSource = (info) => SomeDataSource(info);
             IQueryable<SomeEntity> pq = new LinqToObjectQueryable<SomeEntity>(getPageFromLinqToObjectDataSource);
             var variable = "Item 07";
             var items = pq.Where(s => s.Name == variable);
@@ -218,7 +218,7 @@ namespace LinqToAnything.Test
         [TestMethod]
         public void CanHandleASecondWhereClauseAfterACount()
         {
-            LinqToObjectDataQuery<SomeEntity> getPageFromLinqToObjectDataSource = (info) => SomeDataSource(info);
+            LinqToAnythingDataQuery<SomeEntity> getPageFromLinqToObjectDataSource = (info) => SomeDataSource(info);
             IQueryable<SomeEntity> pq = new LinqToObjectQueryable<SomeEntity>(getPageFromLinqToObjectDataSource);
             var items = pq.Where(s => s.Name == "Item 07");
             var count = items.Count();
@@ -231,7 +231,7 @@ namespace LinqToAnything.Test
         [TestMethod]
         public void CanHandleAnEndsWithMethodCallWhereClause()
         {
-            LinqToObjectDataQuery<SomeEntity> getPageFromLinqToObjectDataSource = (info) => SomeDataSource(info);
+            LinqToAnythingDataQuery<SomeEntity> getPageFromLinqToObjectDataSource = (info) => SomeDataSource(info);
             IQueryable<SomeEntity> pq = new LinqToObjectQueryable<SomeEntity>(getPageFromLinqToObjectDataSource);
             var items = pq.Where(s => s.Name.EndsWith("07"));
             Assert.AreEqual("Item 07", items.ToArray().Single().Name);
@@ -240,7 +240,7 @@ namespace LinqToAnything.Test
         [TestMethod]
         public void CanHandleAProjectionAndACountAgainstIncompleteProvider()
         {
-            LinqToObjectDataQuery<SomeEntity> getPageFromLinqToObjectDataSource = (info) => IncompleteDataSource(info);
+            LinqToAnythingDataQuery<SomeEntity> getPageFromLinqToObjectDataSource = (info) => IncompleteDataSource(info);
             IQueryable<SomeEntity> pq = new LinqToObjectQueryable<SomeEntity>(getPageFromLinqToObjectDataSource);
             var someEntities = pq
                 .Where(i => i.Name.Contains("07"));
@@ -254,7 +254,7 @@ namespace LinqToAnything.Test
         [Ignore]
         public void CanHandleAProjectionAndACountAgainstLambdaProvider()
         {
-            LinqToObjectDataQuery<SomeEntity> getPageFromLinqToObjectDataSource = (info) => LambdaDataSource(info);
+            LinqToAnythingDataQuery<SomeEntity> getPageFromLinqToObjectDataSource = (info) => LambdaDataSource(info);
             IQueryable<SomeEntity> pq = new LinqToObjectQueryable<SomeEntity>(getPageFromLinqToObjectDataSource);
             var someEntities = pq;
             var projection = someEntities
@@ -269,7 +269,7 @@ namespace LinqToAnything.Test
         [TestMethod]
         public void CanHandleAProjectionASkipAndAnOrderByDesc()
         {
-            LinqToObjectDataQuery<SomeEntity> getPageFromLinqToObjectDataSource = (info) => SomeDataSource(info);
+            LinqToAnythingDataQuery<SomeEntity> getPageFromLinqToObjectDataSource = (info) => SomeDataSource(info);
             var pq = new LinqToObjectQueryable<SomeEntity>(getPageFromLinqToObjectDataSource);
             var items = pq.OrderByDescending(e => e.Name).Skip(1).Take(1)
                 .Select(s => new Projection { Item = s.Name }).ToArray();
@@ -282,7 +282,7 @@ namespace LinqToAnything.Test
         [TestMethod]
         public void CanHandleAProjectionASkipAndAnOrderByAsc()
         {
-            LinqToObjectDataQuery<SomeEntity> getPageFromLinqToObjectDataSource = (info) =>
+            LinqToAnythingDataQuery<SomeEntity> getPageFromLinqToObjectDataSource = (info) =>
             {
                 Assert.AreEqual(OrderBy.OrderByDirection.Asc, info.OrderBys.First().Direction);
                 return Enumerable.Empty<SomeEntity>();
@@ -293,7 +293,7 @@ namespace LinqToAnything.Test
         [TestMethod]
         public void CanDoAnOptimizedCount()
         {
-            LinqToObjectDataQuery<SomeEntity> getPageFromLinqToObjectDataSource = (info) =>
+            LinqToAnythingDataQuery<SomeEntity> getPageFromLinqToObjectDataSource = (info) =>
             {
                 throw new NotImplementedException();
             };
@@ -306,7 +306,7 @@ namespace LinqToAnything.Test
             var queryable = Enumerable.Range(1, 100).Select(i => new SomeEntity() { Name = "User" + i, Index = i }).ToArray().AsQueryable();
 
 
-            LinqToObjectDataQuery<SomeEntity> getPageFromLinqToObjectDataSource = (info) =>
+            LinqToAnythingDataQuery<SomeEntity> getPageFromLinqToObjectDataSource = (info) =>
             {
                 return info.ApplyTo(queryable);
             };

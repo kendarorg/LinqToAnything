@@ -14,13 +14,13 @@ namespace LinqToObject
         readonly Expression _expression;
 
         
-        public LinqToObjectQueryable(LinqToObjectDataQuery<T> linqToObjectDataQuery, LinqToObjectCountQuery linqToObjectCountQuery = null)
+        public LinqToObjectQueryable(LinqToAnythingDataQuery<T> linqToObjectDataQuery, LinqToAnythingCountQuery linqToObjectCountQuery = null)
         {
             _provider = new LinqToObjectQueryProvider<T>(linqToObjectDataQuery, linqToObjectCountQuery ?? (qi => linqToObjectDataQuery(qi).Count()));
             _expression = Expression.Constant(this);
         }
 
-        internal LinqToObjectQueryable(LinqToObjectDataQuery<T> linqToObjectDataQuery, LinqToObjectCountQuery linqToObjectCountQuery, Expression expression, QueryVisitor ev)
+        internal LinqToObjectQueryable(LinqToAnythingDataQuery<T> linqToObjectDataQuery, LinqToAnythingCountQuery linqToObjectCountQuery, Expression expression, QueryVisitor ev)
         {
             
             _provider = new LinqToObjectQueryProvider<T>(linqToObjectDataQuery, linqToObjectCountQuery, ev);

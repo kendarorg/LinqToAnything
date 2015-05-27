@@ -61,7 +61,6 @@ namespace LinqToAnything.Visitors
         {
             var result = base.VisitInvocation(node);
             throw new NotImplementedException();
-            return result;
         }
 
 
