@@ -46,6 +46,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ExpressionUtils.cs" />
+    <Compile Include="IExtendedQueryable.cs" />
     <Compile Include="Results\Clause.cs" />
     <Compile Include="Results\Call.cs" />
     <Compile Include="Results\Constant.cs" />

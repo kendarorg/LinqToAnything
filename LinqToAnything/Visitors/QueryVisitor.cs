@@ -81,6 +81,10 @@ namespace LinqToAnything.Visitors
                             QueryInfo.OrderBys.Add(ob);
                             break;
                         }
+                    case ("Max"):
+                    case ("Min"):
+                        throw new NotImplementedException();
+                        break;
                     case ("Where"):
                         {
                             MethodCallExpression call = m;
