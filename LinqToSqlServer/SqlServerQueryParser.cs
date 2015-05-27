@@ -45,6 +45,8 @@ namespace LinqToSqlServer
                 case ("Select"):
                     sql.AppendFormat("SELECT * FROM [{0}] ", _table);
                     break;
+                default:
+                    throw new Exception("Method " + _methodName + " not supported.");
             }
 
             if (_queryInfo.Clauses.Any())
@@ -62,11 +64,36 @@ namespace LinqToSqlServer
                 }
             }
 
+            if (_queryInfo.OrderBys.Any())
+            {
+                sql.Append(" ORDER BY ");
+                var clauses = _queryInfo.OrderBys.ToArray();
+                var count = clauses.Length;
+                for (int i = 0; i < count; i++)
+                {
+                    if (i > 0) sql.Append(", ");
+                    Parse(clauses[i], sql, param);
+                }
+            }
+
             return new ParserResult
             {
                 Sql = sql.ToString(),
                 Parameters = param
             };
+        }
+
+        private void Parse(OrderBy orderBy, StringBuilder sql, Dictionary<string, object> param)
+        {
+            sql.AppendFormat("[{0}]",orderBy.Name);
+            if (orderBy.Direction == OrderBy.OrderByDirection.Asc)
+            {
+                sql.Append(" ASC ");
+            }
+            else
+            {
+                sql.Append(" DESC ");
+            }
         }
 
         private void ParseBinary(BinaryOperator binaryOperator, StringBuilder sb, Dictionary<string, object> par)
@@ -103,37 +130,39 @@ namespace LinqToSqlServer
 
         private void ParseWhere(Where where, StringBuilder sb, Dictionary<string, object> par)
         {
-            
+
             switch (where.Operator)
             {
-                case("Contains"):
+                case ("Contains"):
                     {
                         var constant = where.Parameters[1] as Constant;
                         if (constant != null)
                         {
-                            if(constant.Value!=null && constant.Value.GetType()!=typeof(string) &&  constant.Value is IEnumerable)
+                            if (constant.Value != null && constant.Value.GetType() != typeof(string) && constant.Value is IEnumerable)
                             {
                                 var parName = "p_" + par.Count;
                                 Parse(where.Parameters[0], sb, par);
-                                
+
                                 sb.Append(" IN ");
                                 sb.AppendFormat("@{0}", parName);
                                 par.Add(parName, constant.Value);
                                 break;
-                            }else if(constant.Value!=null && (constant.Value.GetType()==typeof(string)|| constant.Value.GetType()==typeof(char))){
+                            }
+                            else if (constant.Value != null && (constant.Value.GetType() == typeof(string) || constant.Value.GetType() == typeof(char)))
+                            {
                                 var parName = "p_" + par.Count;
                                 Parse(where.Parameters[0], sb, par);
-                                
+
                                 sb.Append(" LIKE ");
                                 sb.AppendFormat("@{0}", parName);
-                                par.Add(parName,"%"+ constant.Value+"%");
+                                par.Add(parName, "%" + constant.Value + "%");
                                 break;
                             }
                         }
                         Parse(where.Parameters[0], sb, par);
                         sb.Append("=");
                         Parse(where.Parameters[1], sb, par);
-                        
+
                     }
                     break;
 
@@ -145,7 +174,7 @@ namespace LinqToSqlServer
 
         private void ParseCall(Call call, StringBuilder sb, Dictionary<string, object> par)
         {
-            
+
             switch (call.Method)
             {
                 case ("ToLower"):
@@ -195,11 +224,11 @@ namespace LinqToSqlServer
         {
             switch (andOr.Operator)
             {
-                case("AND"):
+                case ("AND"):
                     sb.Append("((");
-                    Parse(andOr.Parameters[0],sb,par);
+                    Parse(andOr.Parameters[0], sb, par);
                     sb.Append(") AND (");
-                    Parse(andOr.Parameters[1],sb,par);
+                    Parse(andOr.Parameters[1], sb, par);
                     sb.Append("))");
                     break;
                 case ("OR"):
