@@ -143,6 +143,33 @@ namespace LinqToSqlServer.Test
         {
             Delete(Guid.Empty);
         }
+
+        [TestMethod]
+        public void UnaryExpressionsFromPary()
+        {
+            var dd = new DoDelete<SomeEntity>();
+            var se = new SomeEntity
+            {
+                Id = Guid.Empty
+            };
+            dd.DoWhere(se);
+        }
+    }
+
+    public class DoDelete<T> where T:IEntity
+    {
+        public void DoWhere(T item)
+        {
+            DoWhere(i => i.Id == item.Id);
+        }
+        public void DoWhere(Expression<Func<T, bool>> expr)
+        {
+            IQueryable<T> pq = new SqlServerQueryable<T>(null, null, true);
+            pq.Where(expr).ToArray();
+            var result = ((SqlServerQueryable<T>)pq).Result;
+            Assert.AreEqual(" WHERE [Id]=@p_0", result.Sql);
+            Assert.AreEqual(Guid.Empty, result.Parameters["p_0"]);
+        }
     }
 
 }

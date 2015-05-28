@@ -79,7 +79,7 @@ namespace LinqToSqlServer
                 }
             }
 
-            if (_queryInfo.Skip > 0)
+            /*if (_queryInfo.Skip > 0)
             {
                 sql.AppendFormat(" OFFSET {0} ROWS ", _queryInfo.Skip);
             }
@@ -87,7 +87,7 @@ namespace LinqToSqlServer
             if (_queryInfo.Take != null && _queryInfo.Take.Value > 0)
             {
                 sql.AppendFormat(" FETCH NEXT {0} ROWS ONLY ", _queryInfo.Take.Value);
-            }
+            }*/
 
             return new ParserResult
             {

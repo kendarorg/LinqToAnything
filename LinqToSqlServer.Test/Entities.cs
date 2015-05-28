@@ -6,7 +6,12 @@ namespace LinqToSqlServer.Test
         public string Name { get; set; }
     }
 
-    public class SomeEntity
+    public interface IEntity
+    {
+        Guid Id { get; set; }
+    }
+
+    public class SomeEntity : IEntity
     {
         public Guid Id { get; set; }
         public string Name { get; set; }
