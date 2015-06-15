@@ -63,7 +63,7 @@ namespace LinqToSqlServer
                     if (count > 1) sql.Append("(");
                     Parse(clauses[i], sql, param);
 
-                    if (count > 1) sql.Append("(");
+                    if (count > 1) sql.Append(")");
                 }
             }
 
